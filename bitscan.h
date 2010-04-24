@@ -37,11 +37,10 @@ typedef struct bitarray     bitarray;
 typedef struct bitalloc     bitalloc;
 
 struct bitarray {
-  void *_bits;
+  uint8_t *_bytes;
   size_t _capa;
-  size_t _byte_size;
   size_t _pos;
-  size_t _bit_size;
+  size_t _bitsize;
   const bitalloc *_alloc;
 };
 
@@ -51,21 +50,24 @@ struct bitalloc {
   void (*free)(void *p);
 };
 
-extern bitarray *bitmake(void *bits, size_t pos, size_t size,
+extern bitarray *bitmake(void *buf, size_t pos, size_t size,
     const bitalloc *alloc);
-extern void bitinit(bitarray *bits);
 extern void bitfree(bitarray *bits);
 
-extern size_t bitsize(bitarray *bits);
-extern void bitgrow(bitarray *bits, size_t grow);
+extern size_t bitsize(const bitarray *bits);
+extern void bitgrow(bitarray *bits, size_t growbytes);
 
 extern int bitcmp(const bitarray *bits1, size_t from1, size_t to1,
     const bitarray *bits2, size_t from2, size_t to2);
 extern bool biteq(const bitarray *bits1, const bitarray *bits2);
 
-extern void bitset(bitarray *bits, size_t from, size_t to,
+extern uint8_t bitget(const bitarray *bits, size_t index);
+extern void bitset(bitarray *bits, size_t index, uint8_t value);
+extern void bitsets(bitarray *dest, size_t destfrom,
+    const bitarray *src, size_t srcfrom, size_t size);
+extern void bitfsets(bitarray *bits, size_t from, size_t to,
     const char *format, ...);
-extern void bitvset(bitarray *bits, size_t from, size_t to,
+extern void bitvfsets(bitarray *bits, size_t from, size_t to,
     const char *format, va_list ap);
 extern void bitclear(bitarray *bits, size_t from, size_t to);
 
@@ -81,8 +83,9 @@ extern void bitinsertf(bitarray *dest, size_t index,
 extern void bitvinsertf(bitarray *dest, size_t index,
     const char *format, va_list ap);
 
-extern void bitcpy(bitarray *dest, size_t from, size_t to,
-    const bitarray *src);
+extern void bitcpy(void *dest, size_t destfrom,
+    const bitarray *src, size_t srcfrom, size_t size);
+extern bitarray *bitdup(bitarray *bits);
 extern bitarray *bitsub(const bitarray *bits, size_t from, size_t to);
 
 extern size_t bitbprintf(bitarray *bits, const char *format, ...);
