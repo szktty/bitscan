@@ -33,47 +33,81 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct bitarray bitarray;
+typedef struct bitarray     bitarray;
+typedef struct bitalloc     bitalloc;
 
 struct bitarray {
-  void *bits;
-  size_t pos;
-  size_t size;
+  void *_bits;
+  size_t _capa;
+  size_t _byte_size;
+  size_t _pos;
+  size_t _bit_size;
+  const bitalloc *_alloc;
 };
 
-extern bitarray bitmake(void *bits, size_t pos, size_t size);
+struct bitalloc {
+  void *(*alloc)(size_t size);
+  void *(*realloc)(void *p, size_t size);
+  void (*free)(void *p);
+};
 
-extern bitarray bitcat(bitarray dest, const bitarray src);
-extern void bitcpy(bitarray dest, ssize_t from, ssize_t to,
-    const bitarray src);
-extern bitarray bitsub(const bitarray bits, ssize_t from, ssize_t to);
+extern bitarray *bitmake(void *bits, size_t pos, size_t size,
+    const bitalloc *alloc);
+extern void bitinit(bitarray *bits);
+extern void bitfree(bitarray *bits);
 
-extern size_t bitformat(bitarray bits, const char *format, ...);
-extern size_t bitformatv(bitarray bits, const char *format, va_list ap);
-extern size_t bitformatf(FILE *fp, const char *format, ...);
-extern size_t bitformatfv(FILE *fp, const char *format, va_list ap);
+extern size_t bitsize(bitarray *bits);
+extern void bitgrow(bitarray *bits, size_t grow);
 
-extern size_t bitscan(const bitarray bits, const char *format, ...);
-extern size_t bitscanv(const bitarray bits, const char *format, va_list ap); 
+extern int bitcmp(const bitarray *bits1, size_t from1, size_t to1,
+    const bitarray *bits2, size_t from2, size_t to2);
+extern bool biteq(const bitarray *bits1, const bitarray *bits2);
 
-extern bool bitmatch(const bitarray bits, const char *format, ...);
-extern bool bitmatchv(const bitarray bits, const char *format, va_list ap); 
-
-extern int bitcmp(const bitarray bits1, const bitarray bits2);
-extern bool biteq(const bitarray bits1, const bitarray bits2);
-
-extern size_t bitfind(const bitarray bits, const char *format, ...);
-extern size_t bitfindv(const bitarray bits, const char *format, va_list ap);
-
-extern void bitset(bitarray bits, ssize_t from, ssize_t to,
+extern void bitset(bitarray *bits, size_t from, size_t to,
     const char *format, ...);
-extern void bitsetv(bitarray bits, ssize_t from, ssize_t to,
+extern void bitvset(bitarray *bits, size_t from, size_t to,
     const char *format, va_list ap);
-extern void bitclear(bitarray bits, ssize_t from, ssize_t to);
+extern void bitclear(bitarray *bits, size_t from, size_t to);
 
-extern bitarray bitinsert(bitarray bits, ssize_t from,
+extern void bitappend(bitarray *dest, const bitarray *src,
+    size_t from, size_t to);
+extern void bitappendf(bitarray *dest, const char *format, ...);
+extern void bitvappendf(bitarray *dest, const char *format, va_list ap);
+
+extern void bitinsert(bitarray *dest, size_t index,
+    const bitarray *src, size_t from, size_t to);
+extern void bitinsertf(bitarray *dest, size_t index,
     const char *format, ...);
-extern bitarray bitinsertv(bitarray bits, ssize_t from,
+extern void bitvinsertf(bitarray *dest, size_t index,
+    const char *format, va_list ap);
+
+extern void bitcpy(bitarray *dest, size_t from, size_t to,
+    const bitarray *src);
+extern bitarray *bitsub(const bitarray *bits, size_t from, size_t to);
+
+extern size_t bitbprintf(bitarray *bits, const char *format, ...);
+extern size_t bitvbprintf(bitarray *bits, const char *format, va_list ap);
+extern size_t bitbprintfsize(bitarray *bits, const char *format, ...);
+extern size_t bitbprintfsizev(bitarray *bits, const char *format, va_list ap);
+extern size_t bitfprintf(FILE *fp, const char *format, ...);
+extern size_t bitvfprintf(FILE *fp, const char *format, va_list ap);
+
+extern size_t bitscanf(const bitarray *bits, size_t from,
+    const char *format, ...);
+extern size_t bitvscanf(const bitarray *bits, size_t from,
+    const char *format, va_list ap); 
+
+extern bool bitmatch(const bitarray *bits, size_t from,
+    const bitarray *pat, size_t patfrom, size_t patto);
+extern bool bitmatchf(const bitarray *bits, size_t from,
+    const char *format, ...);
+extern bool bitvmatchf(const bitarray *bits, size_t from,
+    const char *format, va_list ap); 
+extern size_t bitfind(const bitarray *bits, size_t from,
+    const bitarray *pat, size_t patfrom, size_t patto);
+extern size_t bitfindf(const bitarray *bits, size_t from,
+    const char *format, ...);
+extern size_t bitvfindf(const bitarray *bits, size_t from,
     const char *format, va_list ap);
 
 #ifdef __cplusplus
