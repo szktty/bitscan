@@ -38,9 +38,10 @@ typedef struct bitalloc     bitalloc;
 
 struct bitarray {
   uint8_t *_bytes;
+  bool _copy;
   size_t _capa;
   size_t _pos;
-  size_t _bitsize;
+  size_t _size;
   const bitalloc *_alloc;
 };
 
@@ -50,8 +51,9 @@ struct bitalloc {
   void (*free)(void *p);
 };
 
-extern bitarray *bitmake(void *buf, size_t pos, size_t size,
+extern bitarray *bitmake(void *buf, size_t pos, size_t size, bool copy,
     const bitalloc *alloc);
+extern void bitinit(bitarray *bits, void *buf, size_t pos, size_t size);
 extern void bitfree(bitarray *bits);
 
 extern size_t bitsize(const bitarray *bits);

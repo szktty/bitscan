@@ -37,7 +37,7 @@ static bitalloc default_alloc = {
   AT(bytes,idx) = (AT(bytes,idx) & ~(1<<(8-(idx)%8))) | (v)
 
 bitarray *
-bitmake(void *buf, size_t pos, size_t size, const bitalloc *alloc)
+bitmake(void *buf, size_t pos, size_t size, bool copy, const bitalloc *alloc)
 {
   bitarray *bits;
   size_t bpos = 0;
@@ -47,34 +47,53 @@ bitmake(void *buf, size_t pos, size_t size, const bitalloc *alloc)
 
   bits = (bitarray *)alloc->alloc(sizeof(bitarray));
   bits->_alloc = alloc;
-  bits->_capa = GROWSIZE((size / 8) + 1);
-  bits->_bytes = (uint8_t *)alloc->alloc(bits->_capa);
-  bits->_pos = 0;
-  bits->_bitsize = size;
+  bits->_size = size;
+  bits->_copy = copy;
+  if (copy) {
+    bits->_capa = GROWSIZE((size / 8) + 1);
+    bits->_bytes = (uint8_t *)alloc->alloc(bits->_capa);
+    bits->_pos = 0;
 
-  if (pos == 0) {
-    memmove(bits->_bytes, buf, pos / 8);
-    bpos = pos / 8 * 8;
-  }
+    if (pos == 0) {
+      memmove(bits->_bytes, buf, pos / 8);
+      bpos = pos / 8 * 8;
+    }
 
-  for (; bpos < size; pos++, bpos++) {
-    SET(bits->_bytes, bpos, GET(buf, pos));
+    for (; bpos < size; pos++, bpos++) {
+      SET(bits->_bytes, bpos, GET(buf, pos));
+    }
+  } else {
+    bits->_capa = 0;
+    bits->_bytes = buf;
+    bits->_pos = pos;
   }
 
   return bits;
 }
 
 void
+bitinit(bitarray *bits, void *buf, size_t pos, size_t size)
+{
+  bits->_alloc = NULL;
+  bits->_capa = 0;
+  bits->_bytes = buf;
+  bits->_pos = pos;
+  bits->_size = size;
+  bits->_copy = true;
+}
+
+void
 bitfree(bitarray *bits)
 {
-  bits->_alloc->free(bits->_bytes);
+  if (bits->_copy)
+    bits->_alloc->free(bits->_bytes);
   bits->_alloc->free(bits);
 }
 
 size_t
 bitsize(const bitarray *bits)
 {
-  return bits->_bitsize;
+  return bits->_size;
 }
 
 uint8_t
