@@ -57,7 +57,7 @@ extern void bitinit(bitarray *bits, void *buf, size_t pos, size_t size);
 extern void bitfree(bitarray *bits);
 
 extern size_t bitsize(const bitarray *bits);
-extern void bitgrow(bitarray *bits, size_t growbytes);
+extern bool bitgrow(bitarray *bits, size_t growbytes);
 
 extern int bitcmp(const bitarray *bits1, size_t from1, size_t to1,
     const bitarray *bits2, size_t from2, size_t to2);

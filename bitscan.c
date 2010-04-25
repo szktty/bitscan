@@ -96,6 +96,22 @@ bitsize(const bitarray *bits)
   return bits->_size;
 }
 
+bool
+bitgrow(bitarray *bits, size_t growbytes)
+{
+  void *new;
+
+  if (bits->_copy) {
+    new = realloc(bits->_bytes, growbytes);
+    if (new != NULL) {
+      bits->_bytes = new;
+      return true;
+    } else
+      return false;
+  } else
+    return false;
+}
+
 uint8_t
 bitget(const bitarray *bits, size_t index)
 {
