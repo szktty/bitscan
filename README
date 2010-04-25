@@ -1,0 +1,28 @@
+=======
+bitscan
+=======
+
+What is bitscan?
+================
+
+bitscan is a compact C library for scanning, matching and formatting
+bitstrings.
+
+
+Installation
+============
+
+Copy "bitscan.h" and "bitscan.c" to your projects.
+
+
+License
+=======
+
+This library is distributed under MIT license.
+
+
+Author
+======
+
+SUZUKI Tetsuya <suzuki@spice-of-life.net>
+
