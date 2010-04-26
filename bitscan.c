@@ -36,11 +36,45 @@ static bitalloc default_alloc = {
 #define SET(bytes,idx,v)  \
   AT(bytes,idx) = (AT(bytes,idx) & ~(1<<(8-(idx)%8))) | (v)
 
+int
+rawbitcmp(const void *bits1, size_t from1,
+    const void *bits2, size_t from2, size_t size)
+{
+  size_t i;
+
+  for (i = 0; i < size; i++) {
+    if (GET(bits1, from1 + i) == GET(bits2, from2 + i))
+      continue;
+    else if (GET(bits1, from1 + i) > GET(bits2, from2 + i))
+      return 1;
+    else
+      return -1;
+  }
+  return 0;
+}
+
+bool
+rawbiteq(const void *bits1, size_t from1,
+    const void *bits2, size_t from2, size_t size)
+{
+  return rawbitcmp(bits1, 0, bits2, 0, size) == 0;
+}
+
+void
+rawbitsets(void *dest, size_t destfrom,
+    const void *src, size_t srcfrom, size_t size)
+{
+  size_t i = 0;
+
+  for (; i < size; i++) {
+    SET(dest, destfrom + i, GET(src, srcfrom + i));
+  }
+}
+
 bitarray *
 bitmake(void *buf, size_t pos, size_t size, bool copy, const bitalloc *alloc)
 {
   bitarray *bits;
-  size_t bpos = 0;
 
   if (alloc == NULL)
     alloc = &default_alloc;
@@ -53,15 +87,7 @@ bitmake(void *buf, size_t pos, size_t size, bool copy, const bitalloc *alloc)
     bits->_capa = GROWSIZE((size / 8) + 1);
     bits->_bytes = (uint8_t *)alloc->alloc(bits->_capa);
     bits->_pos = 0;
-
-    if (pos == 0) {
-      memmove(bits->_bytes, buf, pos / 8);
-      bpos = pos / 8 * 8;
-    }
-
-    for (; bpos < size; pos++, bpos++) {
-      SET(bits->_bytes, bpos, GET(buf, pos));
-    }
+    rawbitsets(bits->_bytes, 0, buf, pos, size);
   } else {
     bits->_capa = 0;
     bits->_bytes = buf;
@@ -112,14 +138,14 @@ bitgrow(bitarray *bits, size_t growbytes)
     return false;
 }
 
-uint8_t
+bool
 bitget(const bitarray *bits, size_t index)
 {
-  return GET(bits->_bytes, index);
+  return (bool)GET(bits->_bytes, index);
 }
 
 void
-bitset(bitarray *bits, size_t index, uint8_t value)
+bitset(bitarray *bits, size_t index, bool value)
 {
   SET(bits->_bytes, index, value);
 }
