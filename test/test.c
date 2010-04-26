@@ -45,9 +45,9 @@ testrun()
 
     curtests = 0;
     data = curtest->provider();
-    if (data != NULL) {
-      while (data != NULL) {
-        curtest->tester(data);
+    if (*data != NULL) {
+      while (*data != NULL) {
+        curtest->tester(*data);
         data++;
       }
     } else
