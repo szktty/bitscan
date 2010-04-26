@@ -84,7 +84,7 @@ bitmake(void *buf, size_t pos, size_t size, bool copy, const bitalloc *alloc)
   bits->_size = size;
   bits->_copy = copy;
   if (copy) {
-    bits->_capa = GROWSIZE((size / 8) + 1);
+    bits->_capa = GROWSIZE((size / 8) + 2);
     bits->_bytes = (uint8_t *)alloc->alloc(bits->_capa);
     bits->_pos = 0;
     rawbitsets(bits->_bytes, 0, buf, pos, size);
