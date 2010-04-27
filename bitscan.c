@@ -28,13 +28,18 @@ static bitalloc default_alloc = {
   free
 };
 
-#define GROWRATE        1.6
-#define GROWSIZE(n)     (size_t)((n)*GROWRATE)
+#define GROWRATE            1.6
+#define GROWSIZE(n)         (size_t)((n)*GROWRATE)
 
-#define AT(bytes,idx)     ((uint8_t *)(bytes))[(idx)/8]
-#define GET(bytes,idx)    (AT(bytes,idx) & (1<<(8-(idx)%8)))
-#define SET(bytes,idx,v)  \
-  AT(bytes,idx) = (AT(bytes,idx) & ~(1<<(8-(idx)%8))) | (v)
+#define AT(bytes,idx)       ((uint8_t *)(bytes))[(idx)/8]
+#define SHIFTS(idx)         (7-(idx)%8)
+#define GET(bytes,idx)      \
+  ((AT(bytes,idx) & (1<<SHIFTS(idx))) >> SHIFTS(idx))
+#define SET(bytes,idx,v)    \
+  do {                                                      \
+    AT(bytes,idx) = (AT(bytes,idx) & ~(1<<SHIFTS(idx))) |   \
+      ((v)?1<<SHIFTS(idx):0);                               \
+  } while (0)
 
 int
 rawbitcmp(const void *bits1, size_t from1,
@@ -86,6 +91,7 @@ bitmake(void *buf, size_t pos, size_t size, bool copy, const bitalloc *alloc)
   if (copy) {
     bits->_capa = GROWSIZE((size / 8) + 2);
     bits->_bytes = (uint8_t *)alloc->alloc(bits->_capa);
+    memset(bits->_bytes, 0, bits->_capa);
     bits->_pos = 0;
     rawbitsets(bits->_bytes, 0, buf, pos, size);
   } else {
