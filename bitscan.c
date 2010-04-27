@@ -76,6 +76,20 @@ rawbitsets(void *dest, size_t destfrom,
   }
 }
 
+void
+rawbitrand(void *buf, size_t pos, size_t size)
+{
+  uint8_t *bytes;
+  size_t bytesize, i;
+
+  bytes = buf;
+  bytesize = (pos+size) / 8 + 1;
+  memset(bytes, 0, bytesize);
+  for (i = 0; i < bytesize; i++) {
+    bytes[i] = (uint8_t)(random() % 256);
+  }
+}
+
 bitarray *
 bitmake(void *buf, size_t pos, size_t size, bool copy, const bitalloc *alloc)
 {

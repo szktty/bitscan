@@ -65,6 +65,7 @@ extern void rawbitfsets(void *bits, size_t from, size_t to,
 extern void rawbitvfsets(void *bits, size_t from, size_t to,
     const char *format, va_list ap);
 extern void rawbitclear(void *bits, size_t from, size_t to);
+extern void rawbitrand(void *buf, size_t pos, size_t size);
 
 extern void rawbitcpy(void *dest, size_t destfrom,
     const void *src, size_t srcfrom, size_t size);
