@@ -65,9 +65,28 @@ testmake_copy(void *data)
   bitfree(bits);
 }
 
+static void
+testmake_nocopy(void *data)
+{
+  struct datatestmake *test;
+  bitarray *bits;
+  size_t i;
+
+  test = (struct datatestmake *)data;
+  bits = bitmake(test->bytes, test->pos, test->size, false, NULL);
+  testassert(test->pos == bits->_pos, "wrong pos");
+  testassert(test->size == bits->_size, "wrong size");
+  testassert(test->bytes == bits->_bytes, "wrong byte buffer");
+  testassert(rawbiteq(test->bytes, test->pos,
+        bits->_bytes, bits->_pos, bits->_size),
+      "bits are modified");
+  bitfree(bits);
+}
+
 void
 inittestmake()
 {
   TESTADD(testmake_copy);
+  testadd("testmake_nocopy", datatestmake_copy, testmake_nocopy);
 }
 
