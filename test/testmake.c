@@ -32,13 +32,14 @@ datatestmake_copy()
       bytesize = (test->size / 8) + 2;
       test->bytes = malloc(bytesize);
       test->expected = malloc(bytesize);
+      memset(test->bytes, 0, bytesize);
       memset(test->expected, 0, bytesize);
       last = (test->size / 8) + (test->size % 8 > 0);
       for (j = 0; j < last; j++) {
-        v = (size_t)(random() % 256);
-        test->bytes[j] = v;
-        test->expected[j] |= v >> shift;
-        test->expected[j+1] = v << (8 - shift);
+        v = (uint8_t)(random() % 256);
+        test->bytes[j] |= v >> shift;
+        test->bytes[j+1] = v << (8 - shift);
+        test->expected[j] = v;
       }
       data[i] = test;
     }
@@ -58,8 +59,8 @@ testmake_copy(void *data)
   bits = bitmake(test->bytes, test->pos, test->size, true, NULL);
   testassert(0 == bits->_pos, "wrong pos");
   testassert(test->size == bits->_size, "wrong size");
-  testassert(rawbiteq(test->expected, test->pos,
-        bits->_bytes, bits->_pos, bits->_size),
+  testassert(rawbiteq(test->expected, 0,
+        bits->_bytes, 0, bits->_size),
       "bits are not matched");
   bitfree(bits);
 }
