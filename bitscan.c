@@ -42,15 +42,15 @@ static bitalloc default_alloc = {
   } while (0)
 
 int
-rawbitcmp(const void *bits1, size_t from1,
-    const void *bits2, size_t from2, size_t size)
+rawbitcmp(const void *bits1, size_t pos1,
+    const void *bits2, size_t pos2, size_t size)
 {
   size_t i;
 
   for (i = 0; i < size; i++) {
-    if (GET(bits1, from1 + i) == GET(bits2, from2 + i))
+    if (GET(bits1, pos1 + i) == GET(bits2, pos2 + i))
       continue;
-    else if (GET(bits1, from1 + i) > GET(bits2, from2 + i))
+    else if (GET(bits1, pos1 + i) > GET(bits2, pos2 + i))
       return 1;
     else
       return -1;
@@ -59,20 +59,20 @@ rawbitcmp(const void *bits1, size_t from1,
 }
 
 bool
-rawbiteq(const void *bits1, size_t from1,
-    const void *bits2, size_t from2, size_t size)
+rawbiteq(const void *bits1, size_t pos1,
+    const void *bits2, size_t pos2, size_t size)
 {
   return rawbitcmp(bits1, 0, bits2, 0, size) == 0;
 }
 
 void
-rawbitcpy(void *dest, size_t destfrom,
-    const void *src, size_t srcfrom, size_t size)
+rawbitcpy(void *dest, size_t destpos,
+    const void *src, size_t srcpos, size_t size)
 {
   size_t i = 0;
 
   for (; i < size; i++) {
-    SET(dest, destfrom + i, GET(src, srcfrom + i));
+    SET(dest, destpos + i, GET(src, srcpos + i));
   }
 }
 

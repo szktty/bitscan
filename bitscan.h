@@ -51,19 +51,19 @@ struct bitalloc {
   void (*free)(void *p);
 };
 
-extern int rawbitcmp(const void *bits1, size_t from1,
-    const void *bits2, size_t from2, size_t size);
-extern bool rawbiteq(const void *bits1, size_t from1,
-    const void *bits2, size_t from2, size_t size);
+extern int rawbitcmp(const void *bits1, size_t pos1,
+    const void *bits2, size_t pos2, size_t size);
+extern bool rawbiteq(const void *bits1, size_t pos1,
+    const void *bits2, size_t pos2, size_t size);
 
 extern bool rawbitget(const void *bits, size_t index);
 extern void rawbitset(void *bits, size_t index, bool value);
 extern void rawbitsets(void *bits, size_t pos, uint8_t byte, size_t size);
-extern void rawbitfset(void *bits, size_t from, size_t to,
+extern void rawbitfset(void *bits, size_t pos, size_t size,
     const char *format, ...);
-extern void rawbitvfset(void *bits, size_t from, size_t to,
+extern void rawbitvfset(void *bits, size_t pos, size_t size,
     const char *format, va_list ap);
-extern void rawbitclear(void *bits, size_t from, size_t to);
+extern void rawbitclear(void *bits, size_t pos, size_t size);
 extern void rawbitrand(void *buf, size_t pos, size_t size);
 
 extern void rawbitlshift(void *bits, size_t pos, size_t size, size_t shift);
@@ -72,41 +72,41 @@ extern void rawbitlrotate(void *bits, size_t pos, size_t size, size_t rotate);
 extern void rawbitrrotate(void *bits, size_t pos, size_t size, size_t rotate);
 extern void rawbitand(void *dest, size_t destpos,
    const void *src, size_t srcpos,  size_t size);
-extern void rawbitor(void *dest, size_t destpos,
+extern void rawbisizer(void *dest, size_t destpos,
    const void *src, size_t srcpos,  size_t size);
 extern void rawbitxor(void *dest, size_t destpos,
    const void *src, size_t srcpos,  size_t size);
 extern void rawbitreverse(void *bits, size_t pos, size_t size);
 
-extern void rawbitcpy(void *dest, size_t destfrom,
-    const void *src, size_t srcfrom, size_t size);
+extern void rawbitcpy(void *dest, size_t destpos,
+    const void *src, size_t srcpos, size_t size);
 
-extern size_t rawbitprintf(void *bits, size_t from, const char *format, ...);
-extern size_t rawbitvprintf(void *bits, size_t from,
+extern size_t rawbitprintf(void *bits, size_t pos, const char *format, ...);
+extern size_t rawbitvprintf(void *bits, size_t pos,
     const char *format, va_list ap);
-extern size_t rawbitprintfsize(void *bits, size_t from,
+extern size_t rawbitprintfsize(void *bits, size_t pos,
     const char *format, ...);
-extern size_t rawbitprintfsizev(void *bits, size_t from,
+extern size_t rawbitprintfsizev(void *bits, size_t pos,
     const char *format, va_list ap);
 extern size_t rawbitfprintf(FILE *fp, const char *format, ...);
 extern size_t rawbitvfprintf(FILE *fp, const char *format, va_list ap);
 
-extern size_t rawbitscanf(const void *bits, size_t from,
+extern size_t rawbitscanf(const void *bits, size_t pos,
     const char *format, ...);
-extern size_t rawbitvscanf(const void *bits, size_t from,
+extern size_t rawbitvscanf(const void *bits, size_t pos,
     const char *format, va_list ap); 
 
-extern bool rawbitmatch(const void *bits, size_t from,
-    const void *pat, size_t patfrom, size_t patto);
-extern bool rawbitmatchf(const void *bits, size_t from,
+extern bool rawbitmatch(const void *bits, size_t pos,
+    const void *pat, size_t patpos, size_t patsize);
+extern bool rawbitmatchf(const void *bits, size_t pos,
     const char *format, ...);
-extern bool rawbitvmatchf(const void *bits, size_t from,
+extern bool rawbitvmatchf(const void *bits, size_t pos,
     const char *format, va_list ap); 
-extern size_t rawbitfind(const void *bits, size_t from,
-    const void *pat, size_t patfrom, size_t patto);
-extern size_t rawbitfindf(const void *bits, size_t from,
+extern size_t rawbitfind(const void *bits, size_t pos,
+    const void *pat, size_t patpos, size_t patsize);
+extern size_t rawbitfindf(const void *bits, size_t pos,
     const char *format, ...);
-extern size_t rawbitvfindf(const void *bits, size_t from,
+extern size_t rawbitvfindf(const void *bits, size_t pos,
     const char *format, va_list ap);
 
 extern bitarray *bitmake(void *buf, size_t pos, size_t size, bool copy,
@@ -117,19 +117,19 @@ extern void bitfree(bitarray *bits);
 extern size_t bitsize(const bitarray *bits);
 extern bool bitgrow(bitarray *bits, size_t growbytes);
 
-extern int bitcmp(const bitarray *bits1, size_t from1,
-    const bitarray *bits2, size_t from2, size_t size);
-extern bool biteq(const bitarray *bits1, size_t from1, 
-    const bitarray *bits2, size_t from2, size_t size);
+extern int bitcmp(const bitarray *bits1, size_t pos1,
+    const bitarray *bits2, size_t pos2, size_t size);
+extern bool biteq(const bitarray *bits1, size_t pos1, 
+    const bitarray *bits2, size_t pos2, size_t size);
 
 extern bool bitget(const bitarray *bits, size_t index);
 extern void bitset(bitarray *bits, size_t index, bool value);
 extern void bitsets(bitarray *bits, size_t pos, uint8_t byte, size_t size);
-extern void bitfset(bitarray *bits, size_t from, size_t to,
+extern void bitfset(bitarray *bits, size_t pos, size_t size,
     const char *format, ...);
-extern void bitvfset(bitarray *bits, size_t from, size_t to,
+extern void bitvfset(bitarray *bits, size_t pos, size_t size,
     const char *format, va_list ap);
-extern void bitclear(bitarray *bits, size_t from, size_t to);
+extern void bitclear(bitarray *bits, size_t pos, size_t size);
 extern void bitrand(bitarray *bits, size_t pos, size_t size);
 
 extern void bitlshift(bitarray *bits, size_t shift);
@@ -138,52 +138,52 @@ extern void bitlrotate(bitarray *bits, size_t rotate);
 extern void bitrrotate(bitarray *bits, size_t rotate);
 extern void bitand(bitarray *dest, size_t destpos,
    const bitarray *src, size_t srcpos,  size_t size);
-extern void bitor(bitarray *dest, size_t destpos,
+extern void bisizer(bitarray *dest, size_t destpos,
    const bitarray *src, size_t srcpos,  size_t size);
 extern void bitxor(bitarray *dest, size_t destpos,
    const bitarray *src, size_t srcpos,  size_t size);
 extern void bitreverse(bitarray *bits, size_t pos, size_t size);
 
 extern void bitappend(bitarray *dest, const bitarray *src,
-    size_t from, size_t to);
+    size_t pos, size_t size);
 extern void bitappendf(bitarray *dest, const char *format, ...);
 extern void bitvappendf(bitarray *dest, const char *format, va_list ap);
 extern void bitlpad(bitarray *bits, uint8_t pad, size_t padsize);
 extern void bitrpad(bitarray *bits, uint8_t pad, size_t padsize);
 
 extern void bitinsert(bitarray *dest, size_t index,
-    const bitarray *src, size_t from, size_t to);
+    const bitarray *src, size_t pos, size_t size);
 extern void bitinsertf(bitarray *dest, size_t index,
     const char *format, ...);
 extern void bitvinsertf(bitarray *dest, size_t index,
     const char *format, va_list ap);
 
-extern void bitcpy(bitarray *dest, size_t destfrom,
-    const bitarray *src, size_t srcfrom, size_t size);
+extern void bitcpy(bitarray *dest, size_t destpos,
+    const bitarray *src, size_t srcpos, size_t size);
 extern bitarray *bitdup(bitarray *bits);
-extern bitarray *bitsub(const bitarray *bits, size_t from, size_t to);
+extern bitarray *bitsub(const bitarray *bits, size_t pos, size_t size);
 
 extern size_t bitprintf(bitarray *bits, const char *format, ...);
 extern size_t bitvprintf(bitarray *bits, const char *format, va_list ap);
 extern size_t bitprintfsize(bitarray *bits, const char *format, ...);
 extern size_t bitprintfsizev(bitarray *bits, const char *format, va_list ap);
 
-extern size_t bitscanf(const bitarray *bits, size_t from,
+extern size_t bitscanf(const bitarray *bits, size_t pos,
     const char *format, ...);
-extern size_t bitvscanf(const bitarray *bits, size_t from,
+extern size_t bitvscanf(const bitarray *bits, size_t pos,
     const char *format, va_list ap); 
 
-extern bool bitmatch(const bitarray *bits, size_t from,
-    const bitarray *pat, size_t patfrom, size_t patto);
-extern bool bitmatchf(const bitarray *bits, size_t from,
+extern bool bitmatch(const bitarray *bits, size_t pos,
+    const bitarray *pat, size_t patpos, size_t patsize);
+extern bool bitmatchf(const bitarray *bits, size_t pos,
     const char *format, ...);
-extern bool bitvmatchf(const bitarray *bits, size_t from,
+extern bool bitvmatchf(const bitarray *bits, size_t pos,
     const char *format, va_list ap); 
-extern size_t bitfind(const bitarray *bits, size_t from,
-    const bitarray *pat, size_t patfrom, size_t patto);
-extern size_t bitfindf(const bitarray *bits, size_t from,
+extern size_t bitfind(const bitarray *bits, size_t pos,
+    const bitarray *pat, size_t patpos, size_t patsize);
+extern size_t bitfindf(const bitarray *bits, size_t pos,
     const char *format, ...);
-extern size_t bitvfindf(const bitarray *bits, size_t from,
+extern size_t bitvfindf(const bitarray *bits, size_t pos,
     const char *format, va_list ap);
 
 #ifdef __cplusplus
