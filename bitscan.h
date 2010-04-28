@@ -67,6 +67,18 @@ extern void rawbitvfsets(void *bits, size_t from, size_t to,
 extern void rawbitclear(void *bits, size_t from, size_t to);
 extern void rawbitrand(void *buf, size_t pos, size_t size);
 
+extern void rawbitlshift(void *bits, size_t pos, size_t size, size_t shift);
+extern void rawbitrshift(void *bits, size_t pos, size_t size, size_t shift);
+extern void rawbitlrotate(void *bits, size_t pos, size_t size, size_t rotate);
+extern void rawbitrrotate(void *bits, size_t pos, size_t size, size_t rotate);
+extern void rawbitand(void *dest, size_t destpos,
+   const void *src, size_t srcpos,  size_t size);
+extern void rawbitor(void *dest, size_t destpos,
+   const void *src, size_t srcpos,  size_t size);
+extern void rawbitxor(void *dest, size_t destpos,
+   const void *src, size_t srcpos,  size_t size);
+extern void rawbitreverse(void *bits, size_t pos, size_t size);
+
 extern void rawbitcpy(void *dest, size_t destfrom,
     const void *src, size_t srcfrom, size_t size);
 
@@ -120,11 +132,26 @@ extern void bitfsets(bitarray *bits, size_t from, size_t to,
 extern void bitvfsets(bitarray *bits, size_t from, size_t to,
     const char *format, va_list ap);
 extern void bitclear(bitarray *bits, size_t from, size_t to);
+extern void bitrand(bitarray *bits, size_t pos, size_t size);
+
+extern void bitlshift(bitarray *bits, size_t shift);
+extern void bitrshift(bitarray *bits, size_t shift);
+extern void bitlrotate(bitarray *bits, size_t rotate);
+extern void bitrrotate(bitarray *bits, size_t rotate);
+extern void bitand(bitarray *dest, size_t destpos,
+   const bitarray *src, size_t srcpos,  size_t size);
+extern void bitor(bitarray *dest, size_t destpos,
+   const bitarray *src, size_t srcpos,  size_t size);
+extern void bitxor(bitarray *dest, size_t destpos,
+   const bitarray *src, size_t srcpos,  size_t size);
+extern void bitreverse(bitarray *bits, size_t pos, size_t size);
 
 extern void bitappend(bitarray *dest, const bitarray *src,
     size_t from, size_t to);
 extern void bitappendf(bitarray *dest, const char *format, ...);
 extern void bitvappendf(bitarray *dest, const char *format, va_list ap);
+extern void bitlpad(bitarray *bits, uint8_t pad, size_t padsize);
+extern void bitrpad(bitarray *bits, uint8_t pad, size_t padsize);
 
 extern void bitinsert(bitarray *dest, size_t index,
     const bitarray *src, size_t from, size_t to);
