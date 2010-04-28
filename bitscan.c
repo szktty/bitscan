@@ -31,6 +31,9 @@ static bitalloc default_alloc = {
 #define GROWRATE            1.6
 #define GROWSIZE(n)         (size_t)((n)*GROWRATE)
 
+#define BYTE(x)             (x/8)
+#define ISBYTEALIGN(x)      (x%8==0)
+
 #define AT(bytes,idx)       ((uint8_t *)(bytes))[(idx)/8]
 #define SHIFTS(idx)         (7-(idx)%8)
 #define GET(bytes,idx)      \
@@ -46,6 +49,9 @@ rawbitcmp(const void *bits1, size_t pos1,
     const void *bits2, size_t pos2, size_t size)
 {
   size_t i;
+
+  if (ISBYTEALIGN(pos1) && ISBYTEALIGN(pos2) && ISBYTEALIGN(size))
+    return memcmp(bits1 + BYTE(pos1), bits2 + BYTE(pos2), BYTE(size));
 
   for (i = 0; i < size; i++) {
     if (GET(bits1, pos1 + i) == GET(bits2, pos2 + i))
@@ -63,6 +69,18 @@ rawbiteq(const void *bits1, size_t pos1,
     const void *bits2, size_t pos2, size_t size)
 {
   return rawbitcmp(bits1, 0, bits2, 0, size) == 0;
+}
+
+bool
+rawbitget(const void *bits, size_t index)
+{
+  return (bool)GET(bits, index);
+}
+
+void
+rawbitset(void *bits, size_t index, bool value)
+{
+  SET(bits, index, value);
 }
 
 void
