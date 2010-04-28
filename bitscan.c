@@ -66,7 +66,7 @@ rawbiteq(const void *bits1, size_t from1,
 }
 
 void
-rawbitsets(void *dest, size_t destfrom,
+rawbitcpy(void *dest, size_t destfrom,
     const void *src, size_t srcfrom, size_t size)
 {
   size_t i = 0;
@@ -107,7 +107,7 @@ bitmake(void *buf, size_t pos, size_t size, bool copy, const bitalloc *alloc)
     bits->_bytes = (uint8_t *)alloc->alloc(bits->_capa);
     memset(bits->_bytes, 0, bits->_capa);
     bits->_pos = 0;
-    rawbitsets(bits->_bytes, 0, buf, pos, size);
+    rawbitcpy(bits->_bytes, 0, buf, pos, size);
   } else {
     bits->_capa = 0;
     bits->_bytes = buf;

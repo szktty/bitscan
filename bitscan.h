@@ -58,8 +58,7 @@ extern bool rawbiteq(const void *bits1, size_t from1,
 
 extern bool rawbitget(const void *bits, size_t index);
 extern void rawbitset(void *bits, size_t index, bool value);
-extern void rawbitsets(void *dest, size_t destfrom,
-    const void *src, size_t srcfrom, size_t size);
+extern void rawbitsets(void *bits, size_t pos, uint8_t byte, size_t size);
 extern void rawbitfset(void *bits, size_t from, size_t to,
     const char *format, ...);
 extern void rawbitvfset(void *bits, size_t from, size_t to,
@@ -125,8 +124,7 @@ extern bool biteq(const bitarray *bits1, size_t from1,
 
 extern bool bitget(const bitarray *bits, size_t index);
 extern void bitset(bitarray *bits, size_t index, bool value);
-extern void bitsets(bitarray *dest, size_t destfrom,
-    const bitarray *src, size_t srcfrom, size_t size);
+extern void bitsets(bitarray *bits, size_t pos, uint8_t byte, size_t size);
 extern void bitfset(bitarray *bits, size_t from, size_t to,
     const char *format, ...);
 extern void bitvfset(bitarray *bits, size_t from, size_t to,
