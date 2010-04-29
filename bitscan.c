@@ -50,9 +50,6 @@ rawbitcmp(const void *bits1, size_t pos1,
 {
   size_t i;
 
-  if (ISBYTEALIGN(pos1) && ISBYTEALIGN(pos2) && ISBYTEALIGN(size))
-    return memcmp(bits1 + BYTE(pos1), bits2 + BYTE(pos2), BYTE(size));
-
   for (i = 0; i < size; i++) {
     if (GET(bits1, pos1 + i) == GET(bits2, pos2 + i))
       continue;
@@ -68,7 +65,7 @@ bool
 rawbiteq(const void *bits1, size_t pos1,
     const void *bits2, size_t pos2, size_t size)
 {
-  return rawbitcmp(bits1, 0, bits2, 0, size) == 0;
+  return (bool)(rawbitcmp(bits1, pos1, bits2, pos2, size) == 0);
 }
 
 bool
