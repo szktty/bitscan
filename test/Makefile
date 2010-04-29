@@ -1,6 +1,6 @@
 CFLAGS = -I..
 
-OBJS = main.o test.o testmake.o
+OBJS = main.o test.o testrawbitcmp.o testmake.o
 MAIN = main
 
 all: $(OBJS)
