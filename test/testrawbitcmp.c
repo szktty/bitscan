@@ -23,7 +23,7 @@ datatestrawbitcmp()
   bool b1, b2;
 
   if (data == NULL) {
-    data = (struct testdata **)malloc(sizeof(struct testdata *) * n+1);
+    data = (struct testdata **)malloc(sizeof(struct testdata *) * (n+1));
     data[n] = NULL;
     for (i = 0; i < n; i++) {
       bytesize = (size_t)(rand() % maxbytesize);
