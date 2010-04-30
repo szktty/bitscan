@@ -59,7 +59,8 @@ testrun()
   printf("\n");
   fail = faillogs;
   while (fail != NULL) {
-    printf("%s (%u):\n    %s\n\n", fail->test->name, fail->n, fail->msg);
+    printf("%s (%u):\n    %s\n\n", fail->test->name, fail->n,
+        fail->msg != NULL ? fail->msg : "failed");
     fail = fail->next;
   }
 
@@ -100,7 +101,8 @@ testassert(bool cond, const char *msg)
     fail = (faillog *)malloc(sizeof(faillog));
     fail->test = curtest;
     fail->n = curtests;
-    fail->msg = strdup(msg);
+    if (msg != NULL)
+      fail->msg = strdup(msg);
     fail->next = NULL;
     if (lastfail != NULL)
       lastfail->next = fail;
