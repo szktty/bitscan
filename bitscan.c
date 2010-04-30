@@ -92,39 +92,34 @@ rawbitcpy(void *dest, size_t destpos,
 }
 
 void
-rawbitrand(void *bits, size_t pos, size_t size)
+rawbitrand(void *bits, size_t pos, size_t size,
+    size_t randsize, void (*rand)(void *buf))
 {
-  uint8_t *bytes, shift;
-  size_t i, n, vsize;
-  int v = 0;
+  size_t i, j, capa;
+  uint8_t *buf;
 
-  bytes = bits;
-  if (pos % 8 != 0) {
-    i = pos / 8;
-    shift = 8 - pos % 8;
-    v = random();
-    bytes[i] = (bytes[i] & ~((1 << shift) - 1)) |
-      (v & ((1 << shift) - 1));
-  }
+  capa = randsize / 8 * 8 + 1;
+  buf = malloc(capa);
 
-  if ((pos + size) % 8 != 0) {
-    i = (pos + size) / 8;
-    shift = 8 - (pos + size) % 8;
-    if (v == 0)
-      v = random();
-    bytes[i] = (bytes[i] & ((1 << shift) - 1)) |
-      ((v >> 8) << shift);
+  for (i = 0; i < size;) {
+    memset(buf, 0, capa);
+    rand(buf);
+    for (j = 0; j < randsize && i < size; i++, j++) {
+      SET(bits, pos+i, GET(buf, j));
+    }
   }
+}
 
-  n = (pos + size) / 8;
-  for (i = pos / 8 + 1; i < n; i += vsize) {
-    v = random();
-    if (i + sizeof(int) < n)
-      vsize = sizeof(int);
-    else
-      vsize = sizeof(int) - (i + sizeof(int) - n);
-    memset(bytes + i, v, vsize);
-  }
+static void
+stdrand(void *buf)
+{
+  memset(buf, random(), sizeof(int));
+}
+
+void
+rawbitstdrand(void *bits, size_t pos, size_t size)
+{
+  rawbitrand(bits, pos, size, sizeof(int) * 8, stdrand);
 }
 
 bitarray *

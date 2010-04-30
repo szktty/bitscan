@@ -40,12 +40,12 @@ datatestrawbitcmp()
       if (rand() % 2 == 0) {
         /* same bits */
         data[i]->expected = 0;
-        rawbitrand(data[i]->bytes1, data[i]->pos1, data[i]->size);
+        rawbitstdrand(data[i]->bytes1, data[i]->pos1, data[i]->size);
         rawbitcpy(data[i]->bytes2, data[i]->pos2,
             data[i]->bytes1, data[i]->pos1, data[i]->size);
       } else {
-        rawbitrand(data[i]->bytes1, data[i]->pos1, data[i]->size);
-        rawbitrand(data[i]->bytes2, data[i]->pos2, data[i]->size);
+        rawbitstdrand(data[i]->bytes1, data[i]->pos1, data[i]->size);
+        rawbitstdrand(data[i]->bytes2, data[i]->pos2, data[i]->size);
 
         data[i]->expected = 0;
         for (j = 0; j < data[i]->size; j++) {

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include "test.h"
 
 extern void inittestrawbitcmp();
@@ -9,6 +10,7 @@ extern void inittestmake();
 int
 main(int argc, char **argv)
 {
+  srand((unsigned int)time(NULL));
   inittestrawbitcmp();
   inittestrawbitget();
   inittestrawbitrand();

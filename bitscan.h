@@ -64,7 +64,9 @@ extern void rawbitfset(void *bits, size_t pos, size_t size,
 extern void rawbitvfset(void *bits, size_t pos, size_t size,
     const char *format, va_list ap);
 extern void rawbitclear(void *bits, size_t pos, size_t size);
-extern void rawbitrand(void *bits, size_t pos, size_t size);
+extern void rawbitrand(void *bits, size_t pos, size_t size,
+    size_t randsize, void (*rand)(void *buf));
+extern void rawbitstdrand(void *bits, size_t pos, size_t size);
 
 extern void rawbitlshift(void *bits, size_t pos, size_t size, size_t shift);
 extern void rawbitrshift(void *bits, size_t pos, size_t size, size_t shift);
