@@ -92,6 +92,16 @@ rawbitcpy(void *dest, size_t destpos,
 }
 
 void
+rawbitclear(void *bits, size_t pos, size_t size)
+{
+  size_t i = 0;
+
+  for (; i < size; i++) {
+    SET(bits, pos + i, false);
+  }
+}
+
+void
 rawbitrand(void *bits, size_t pos, size_t size,
     size_t randsize, void (*rand)(void *buf))
 {
