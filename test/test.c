@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "test.h"
 
 typedef struct testcase testcase;
@@ -40,9 +41,7 @@ testrun()
 
   curtest = testcases;
   while (curtest != NULL) {
-    printf("%s:", curtest->name);
-    for (i = 0; i < 23 - strlen(curtest->name); i++)
-      printf(" ");
+    printf("testing %s...\n", curtest->name);
 
     curtests = 0;
     orig = data = curtest->provider();
@@ -55,12 +54,10 @@ testrun()
       }
     } else
       curtest->tester(NULL);
-    printf("\n");
     free(orig);
     curtest = curtest->next;
   }
 
-  printf("\n");
   fail = faillogs;
   while (fail != NULL) {
     printf("%s (%u):\n    %s\n\n", fail->test->name, fail->n,
@@ -68,7 +65,7 @@ testrun()
     fail = fail->next;
   }
 
-  printf("\ntests: %u, successes: %u, fails: %u\n", tests, successes, fails);
+  printf("tests: %u, successes: %u, fails: %u\n", tests, successes, fails);
 }
 
 void
@@ -99,10 +96,8 @@ testassert(bool cond, const char *msg)
   curtests++;
   if (cond) {
     successes++;
-    printf(".");
   } else {
     fails++;
-    printf("F");
 
     fail = (faillog *)malloc(sizeof(faillog));
     fail->test = curtest;
