@@ -10,6 +10,7 @@ struct testcase {
   char *name;
   void **(*provider)();
   void (*tester)(void *data);
+  void (*free)(void *data);
   testcase *next;
 };
 
@@ -34,7 +35,7 @@ void
 testrun()
 {
   size_t i;
-  void **data;
+  void **data, **orig;
   faillog *fail;
 
   curtest = testcases;
@@ -44,15 +45,18 @@ testrun()
       printf(" ");
 
     curtests = 0;
-    data = curtest->provider();
+    orig = data = curtest->provider();
     if (*data != NULL) {
       while (*data != NULL) {
         curtest->tester(*data);
+        if (curtest->free != NULL)
+          curtest->free(*data);
         data++;
       }
     } else
       curtest->tester(NULL);
     printf("\n");
+    free(orig);
     curtest = curtest->next;
   }
 
@@ -68,7 +72,8 @@ testrun()
 }
 
 void
-testadd(const char *name, void **(*provider)(), void (*tester)(void *data))
+testadd(const char *name, void **(*provider)(),
+    void (*tester)(void *data), void (*free)(void *data))
 {
   testcase *new;
 
@@ -77,6 +82,7 @@ testadd(const char *name, void **(*provider)(), void (*tester)(void *data))
   new->name = strdup(name);
   new->provider = provider;
   new->tester = tester;
+  new->free = free;
   new->next = NULL;
   if (lastcase != NULL)
     lastcase->next = new;

@@ -12,23 +12,27 @@ struct testdata {
 static void **
 datatestrawbitclear()
 {
-  static struct testdata **data;
+  struct testdata **data;
   static size_t n = 10000, maxcapa = 512;
   size_t i;
 
-  if (data == NULL) {
-    data = (struct testdata **)malloc(sizeof(struct testdata *) * (n+1));
-    data[n] = NULL;
+  data = (struct testdata **)malloc(sizeof(struct testdata *) * (n+1));
+  data[n] = NULL;
 
-    for (i = 0; i < n; i++) {
-      data[i] = (struct testdata *)malloc(sizeof(struct testdata));
-      data[i]->capa = gencapa(maxcapa);
-      data[i]->size = gensize(data[i]->capa);
-      data[i]->pos = genpos(data[i]->capa, data[i]->size);
-    }
+  for (i = 0; i < n; i++) {
+    data[i] = (struct testdata *)malloc(sizeof(struct testdata));
+    data[i]->capa = gencapa(maxcapa);
+    data[i]->size = gensize(data[i]->capa);
+    data[i]->pos = genpos(data[i]->capa, data[i]->size);
   }
 
   return (void **)data;
+}
+
+static void
+freetestrawbitclear(void *data)
+{
+  /* do nothing */
 }
 
 static void

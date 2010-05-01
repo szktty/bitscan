@@ -14,33 +14,40 @@ struct testdata {
 static void **
 datatestrawbitstdrand()
 {
-  static struct testdata **data;
+  struct testdata **data;
   static size_t n = 10000, bytesize = 512;
   size_t i, j;
   bool b;
 
-  if (data == NULL) {
-    data = (struct testdata **)malloc(sizeof(struct testdata *) * (n+1));
-    data[n] = NULL;
+  data = (struct testdata **)malloc(sizeof(struct testdata *) * (n+1));
+  data[n] = NULL;
 
-    for (i = 0; i < n; i++) {
-      data[i] = (struct testdata *)malloc(sizeof(struct testdata));
-      data[i]->bytes = (uint8_t *)malloc(bytesize);
-      data[i]->capa = bytesize;
-      data[i]->size = (size_t)(abs(rand() % (bytesize * 8)));
-      if (data[i]->size == 0)
-        data[i]->size = 1;
+  for (i = 0; i < n; i++) {
+    data[i] = (struct testdata *)malloc(sizeof(struct testdata));
+    data[i]->bytes = (uint8_t *)malloc(bytesize);
+    data[i]->capa = bytesize;
+    data[i]->size = (size_t)(abs(rand() % (bytesize * 8)));
+    if (data[i]->size == 0)
+      data[i]->size = 1;
 
-      if (data[i]->size == bytesize * 8)
-        data[i]->pos = 0;
-      else
-        data[i]->pos =
-          (size_t)(abs(rand() % (bytesize * 8 - data[i]->size)));
-      data[i]->flag = (bool)(abs(random() % 2));
-    }
+    if (data[i]->size == bytesize * 8)
+      data[i]->pos = 0;
+    else
+      data[i]->pos =
+        (size_t)(abs(rand() % (bytesize * 8 - data[i]->size)));
+    data[i]->flag = (bool)(abs(random() % 2));
   }
 
   return (void **)data;
+}
+
+static void
+freetestrawbitstdrand(void *data)
+{
+  struct testdata *test;
+
+  test = data;
+  free(test->bytes);
 }
 
 static void

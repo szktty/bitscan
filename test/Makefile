@@ -2,7 +2,7 @@ CFLAGS = -I..
 
 OBJS = main.o test.o testgen.o \
 	   testrawbitget.o testrawbitcmp.o testrawbitrand.o \
-	   testrawbitclear.o testmake.o
+	   testrawbitclear.o testrawbitset.o testmake.o
 MAIN = main
 
 all: $(OBJS)

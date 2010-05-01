@@ -7,11 +7,11 @@
 extern "C" {
 #endif
 
-#define TESTADD(name)   testadd(#name, data##name, name)
+#define TESTADD(name)   testadd(#name, data##name, name, free##name)
 
 extern void testrun();
 extern void testadd(const char *name, void **(*provider)(),
-    void (*tester)(void *data));
+    void (*tester)(void *data), void (*free)(void *data));
 extern void testassert(bool cond, const char *msg);
 extern void testfail(const char *msg);
 
