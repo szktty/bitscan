@@ -56,8 +56,8 @@ extern int rawbitcmp(const void *bits1, size_t pos1,
 extern bool rawbiteq(const void *bits1, size_t pos1,
     const void *bits2, size_t pos2, size_t size);
 
-extern bool rawbitget(const void *bits, size_t index);
-extern void rawbitset(void *bits, size_t index, bool value);
+extern bool rawbitget(const void *bits, size_t pos);
+extern void rawbitset(void *bits, size_t pos, bool value);
 extern void rawbitsets(void *bits, size_t pos, uint8_t byte, size_t size);
 extern void rawbitsetf(void *bits, size_t pos, size_t size,
     const char *format, ...);
@@ -124,8 +124,8 @@ extern int bitcmp(const bitarray *bits1, size_t pos1,
 extern bool biteq(const bitarray *bits1, size_t pos1, 
     const bitarray *bits2, size_t pos2, size_t size);
 
-extern bool bitget(const bitarray *bits, size_t index);
-extern void bitset(bitarray *bits, size_t index, bool value);
+extern bool bitget(const bitarray *bits, size_t pos);
+extern void bitset(bitarray *bits, size_t pos, bool value);
 extern void bitsets(bitarray *bits, size_t pos, uint8_t byte, size_t size);
 extern void bitsetf(bitarray *bits, size_t pos, size_t size,
     const char *format, ...);
@@ -153,11 +153,11 @@ extern void bitvappendf(bitarray *dest, const char *format, va_list ap);
 extern void bitlpad(bitarray *bits, uint8_t pad, size_t padsize);
 extern void bitrpad(bitarray *bits, uint8_t pad, size_t padsize);
 
-extern void bitinsert(bitarray *dest, size_t index,
-    const bitarray *src, size_t pos, size_t size);
-extern void bitinsertf(bitarray *dest, size_t index,
+extern void bitinsert(bitarray *dest, size_t destpos,
+    const bitarray *src, size_t srcpos, size_t size);
+extern void bitinsertf(bitarray *dest, size_t pos,
     const char *format, ...);
-extern void bitvinsertf(bitarray *dest, size_t index,
+extern void bitvinsertf(bitarray *dest, size_t pos,
     const char *format, va_list ap);
 
 extern void bitcpy(bitarray *dest, size_t destpos,

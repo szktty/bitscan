@@ -69,15 +69,15 @@ rawbiteq(const void *bits1, size_t pos1,
 }
 
 bool
-rawbitget(const void *bits, size_t index)
+rawbitget(const void *bits, size_t pos)
 {
-  return (bool)GET(bits, index);
+  return (bool)GET(bits, pos);
 }
 
 void
-rawbitset(void *bits, size_t index, bool value)
+rawbitset(void *bits, size_t pos, bool value)
 {
-  SET(bits, index, value);
+  SET(bits, pos, value);
 }
 
 void
@@ -218,14 +218,14 @@ bitgrow(bitarray *bits, size_t growbytes)
 }
 
 bool
-bitget(const bitarray *bits, size_t index)
+bitget(const bitarray *bits, size_t pos)
 {
-  return (bool)GET(bits->_bytes, index);
+  return (bool)GET(bits->_bytes, pos);
 }
 
 void
-bitset(bitarray *bits, size_t index, bool value)
+bitset(bitarray *bits, size_t pos, bool value)
 {
-  SET(bits->_bytes, index, value);
+  SET(bits->_bytes, pos, value);
 }
 
