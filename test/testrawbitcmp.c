@@ -20,22 +20,21 @@ datatestrawbitcmp()
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 1024;
-  size_t i, j, capa;
+  size_t i, j;
   bool b1, b2;
 
   data = (struct testdata **)malloc(sizeof(struct testdata *) * (n+1));
   data[n] = NULL;
   for (i = 0; i < n; i++) {
-    capa = (size_t)(rand() % maxcapa);
     data[i] = (struct testdata *)malloc(sizeof(struct testdata));
     data[i]->capa = gencapa(maxcapa);
-    data[i]->bytes1 = (uint8_t *)malloc(capa);
-    data[i]->bytes2 = (uint8_t *)malloc(capa);
+    data[i]->bytes1 = (uint8_t *)malloc(data[i]->capa);
+    data[i]->bytes2 = (uint8_t *)malloc(data[i]->capa);
     data[i]->size = gensize(data[i]->capa);
     data[i]->pos1 = genpos(data[i]->capa, data[i]->size);
     data[i]->pos2 = genpos(data[i]->capa, data[i]->size);
-    memset(data[i]->bytes1, 0, capa);
-    memset(data[i]->bytes2, 0, capa);
+    memset(data[i]->bytes1, 0, data[i]->capa);
+    memset(data[i]->bytes2, 0, data[i]->capa);
 
     if (rand() % 2 == 0) {
       /* same bits */
