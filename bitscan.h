@@ -59,9 +59,9 @@ extern bool rawbiteq(const void *bits1, size_t pos1,
 extern bool rawbitget(const void *bits, size_t index);
 extern void rawbitset(void *bits, size_t index, bool value);
 extern void rawbitsets(void *bits, size_t pos, uint8_t byte, size_t size);
-extern void rawbitfset(void *bits, size_t pos, size_t size,
+extern void rawbitsetf(void *bits, size_t pos, size_t size,
     const char *format, ...);
-extern void rawbitvfset(void *bits, size_t pos, size_t size,
+extern void rawbitvsetf(void *bits, size_t pos, size_t size,
     const char *format, va_list ap);
 extern void rawbitclear(void *bits, size_t pos, size_t size);
 extern void rawbitrand(void *bits, size_t pos, size_t size,
@@ -127,9 +127,9 @@ extern bool biteq(const bitarray *bits1, size_t pos1,
 extern bool bitget(const bitarray *bits, size_t index);
 extern void bitset(bitarray *bits, size_t index, bool value);
 extern void bitsets(bitarray *bits, size_t pos, uint8_t byte, size_t size);
-extern void bitfset(bitarray *bits, size_t pos, size_t size,
+extern void bitsetf(bitarray *bits, size_t pos, size_t size,
     const char *format, ...);
-extern void bitvfset(bitarray *bits, size_t pos, size_t size,
+extern void bitvsetf(bitarray *bits, size_t pos, size_t size,
     const char *format, va_list ap);
 extern void bitclear(bitarray *bits, size_t pos, size_t size);
 extern void bitrand(bitarray *bits, size_t pos, size_t size);
