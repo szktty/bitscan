@@ -16,6 +16,10 @@ struct bitsrc {
   size_t size;
 };
 
+extern size_t gencapa(size_t max);
+extern size_t gensize(size_t capa);
+extern size_t genpos(size_t capa, size_t size);
+
 #ifdef __cplusplus
 }
 #endif

@@ -13,7 +13,7 @@ static void **
 datatestrawbitclear()
 {
   static struct testdata **data;
-  static size_t n = 10000, bytesize = 512;
+  static size_t n = 10000, maxcapa = 512;
   size_t i;
 
   if (data == NULL) {
@@ -22,16 +22,9 @@ datatestrawbitclear()
 
     for (i = 0; i < n; i++) {
       data[i] = (struct testdata *)malloc(sizeof(struct testdata));
-      data[i]->capa = bytesize;
-      data[i]->size = (size_t)(abs(rand() % (bytesize * 8)));
-      if (data[i]->size == 0)
-        data[i]->size = 1;
-
-      if (data[i]->size == bytesize * 8)
-        data[i]->pos = 0;
-      else
-        data[i]->pos =
-          (size_t)(abs(rand() % (bytesize * 8 - data[i]->size)));
+      data[i]->capa = gencapa(maxcapa);
+      data[i]->size = gensize(data[i]->capa);
+      data[i]->pos = genpos(data[i]->capa, data[i]->size);
     }
   }
 
