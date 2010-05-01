@@ -14,8 +14,8 @@ static void **
 datatestrawbitget()
 {
   struct testdata **data;
-  static size_t n = 100, bytesize = 512;
-  size_t i, j;
+  static size_t n = 10000, maxcapa = 1024;
+  size_t i, j, capa;
   bool b;
 
   data = (struct testdata **)malloc(sizeof(struct testdata *) * (n+1));
@@ -23,12 +23,13 @@ datatestrawbitget()
 
   for (i = 0; i < n; i++) {
     data[i] = (struct testdata *)malloc(sizeof(struct testdata));
-    data[i]->bytes = (uint8_t *)malloc(bytesize);
-    data[i]->size = (size_t)(rand() % (bytesize * 8));
-    data[i]->pos = (size_t)(rand() % (bytesize * 8 - data[i]->size));
-    data[i]->expected = (uint8_t *)malloc(bytesize * 8);
+    capa = gencapa(maxcapa);
+    data[i]->bytes = (uint8_t *)malloc(capa);
+    data[i]->size = gensize(capa);
+    data[i]->pos = genpos(capa, data[i]->size);
+    data[i]->expected = (uint8_t *)malloc(capa * 8);
     for (j = 0; j < data[i]->size; j++) {
-      b = (bool)(rand() % 2);
+      b = genbool();
       rawbitset(data[i]->bytes, data[i]->pos + j, b);
       data[i]->expected[j] = b;
     }

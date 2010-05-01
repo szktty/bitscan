@@ -31,3 +31,9 @@ genpos(size_t capa, size_t size)
     return (size_t)(abs(rand()) % (capa * 8 - size));
 }
 
+bool
+genbool()
+{
+  return (bool)(abs(random()));
+}
+
