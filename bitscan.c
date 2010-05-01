@@ -41,7 +41,7 @@ static bitalloc default_alloc = {
 #define SET(bytes,idx,v)    \
   do {                                                      \
     AT(bytes,idx) = (AT(bytes,idx) & ~(1<<SHIFTS(idx))) |   \
-      ((v)?1<<SHIFTS(idx):0);                               \
+      ((v)&1?1<<SHIFTS(idx):0);                             \
   } while (0)
 
 int
@@ -78,6 +78,23 @@ void
 rawbitset(void *bits, size_t index, bool value)
 {
   SET(bits, index, value);
+}
+
+void
+rawbitsets(void *bits, size_t pos, uint8_t byte, size_t size)
+{
+  size_t i;
+
+  for (i = 0; i < size; i++, pos += 8) {
+    SET(bits, pos, byte >> 7);
+    SET(bits, pos + 1, byte >> 6);
+    SET(bits, pos + 2, byte >> 5);
+    SET(bits, pos + 3, byte >> 4);
+    SET(bits, pos + 4, byte >> 3);
+    SET(bits, pos + 5, byte >> 2);
+    SET(bits, pos + 6, byte >> 1);
+    SET(bits, pos + 7, byte);
+  }
 }
 
 void
