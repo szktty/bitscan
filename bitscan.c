@@ -149,6 +149,30 @@ rawbitstdrand(void *bits, size_t pos, size_t size)
   rawbitrand(bits, pos, size, sizeof(int) * 8, stdrand);
 }
 
+void
+rawbitand(void *dest, size_t destpos, const void *bits1, size_t pos1,
+   const void *bits2, size_t pos2, size_t size)
+{
+  size_t i;
+
+  for (i = 0; i < size; i++) {
+    SET(dest, destpos + i,
+        GET(bits1, pos1 + i) & GET(bits2, pos2 + i));
+  }
+}
+
+void
+rawbitor(void *dest, size_t destpos, const void *bits1, size_t pos1,
+   const void *bits2, size_t pos2, size_t size)
+{
+  size_t i;
+
+  for (i = 0; i < size; i++) {
+    SET(dest, destpos + i,
+        GET(bits1, pos1 + i) | GET(bits2, pos2 + i));
+  }
+}
+
 bitarray *
 bitmake(void *buf, size_t pos, size_t size, bool copy, const bitalloc *alloc)
 {

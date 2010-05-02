@@ -73,11 +73,14 @@ extern void rawbitrshift(void *bits, size_t pos, size_t size, size_t shift);
 extern void rawbitlrotate(void *bits, size_t pos, size_t size, size_t rotate);
 extern void rawbitrrotate(void *bits, size_t pos, size_t size, size_t rotate);
 extern void rawbitand(void *dest, size_t destpos,
-   const void *src, size_t srcpos,  size_t size);
+   const void *bits1, size_t pos1,
+   const void *bits2, size_t pos2, size_t size);
 extern void rawbitor(void *dest, size_t destpos,
-   const void *src, size_t srcpos,  size_t size);
+   const void *bits1, size_t pos1,
+   const void *bits2, size_t pos2, size_t size);
 extern void rawbitxor(void *dest, size_t destpos,
-   const void *src, size_t srcpos,  size_t size);
+   const void *bits1, size_t pos1,
+   const void *bits2, size_t pos2, size_t size);
 extern void rawbitreverse(void *bits, size_t pos, size_t size);
 
 extern void rawbitcpy(void *dest, size_t destpos,
