@@ -8,20 +8,21 @@ extern void inittestrawbitset();
 extern void inittestrawbitrand();
 extern void inittestrawbitclear();
 extern void inittestrawbitcpy();
+extern void inittestrawbitop();
 extern void inittestmake();
 
 int
 main(int argc, char **argv)
 {
   srand((unsigned int)time(NULL));
-  /*
-  inittestrawbitcmp();
-  inittestrawbitget();
-  inittestrawbitset();
-  inittestrawbitrand();
+  inittestrawbitop();
   inittestrawbitclear();
-  */
+  inittestrawbitcmp();
   inittestrawbitcpy();
+  inittestrawbitget();
+  inittestrawbitop();
+  inittestrawbitrand();
+  inittestrawbitset();
   inittestmake();
   testrun();
   return 0;

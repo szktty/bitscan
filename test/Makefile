@@ -3,7 +3,7 @@ CFLAGS = -I..
 OBJS = main.o test.o testgen.o \
 	   testrawbitclear.o testrawbitcmp.o testrawbitcpy.o \
 	   testrawbitget.o \
-	   testrawbitrand.o \
+	   testrawbitop.o testrawbitrand.o \
 	   testrawbitset.o testmake.o
 MAIN = main
 
