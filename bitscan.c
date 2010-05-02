@@ -185,6 +185,17 @@ rawbitxor(void *dest, size_t destpos, const void *bits1, size_t pos1,
   }
 }
 
+void
+rawbitreverse(void *dest, size_t destpos,
+    const void *src, size_t srcpos, size_t size)
+{
+  size_t i;
+
+  for (i = 0; i < size; i++) {
+    SET(dest, destpos + i, !GET(src, srcpos + i));
+  }
+}
+
 bitarray *
 bitmake(void *buf, size_t pos, size_t size, bool copy, const bitalloc *alloc)
 {
