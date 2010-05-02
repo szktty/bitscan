@@ -15,7 +15,6 @@ int
 main(int argc, char **argv)
 {
   srand((unsigned int)time(NULL));
-  inittestrawbitop();
   inittestrawbitclear();
   inittestrawbitcmp();
   inittestrawbitcpy();
