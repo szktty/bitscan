@@ -256,10 +256,19 @@ testrawbitreverse(void *data)
 
   test = data;
   buf = (uint8_t *)malloc(test->capa);
+
+  /* different pointers */
   memcpy(buf, test->bytes1, test->capa);
   rawbitreverse(buf, test->expos, test->bytes1, test->pos1, test->size);
   testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
-      "failed");
+      "failed to write reversed bits to a different pointer");
+
+  /* same pointer */
+  memcpy(buf, test->bytes1, test->capa);
+  rawbitreverse(buf, test->expos, buf, test->pos1, test->size);
+  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+      "failed to write reversed bits to the pointer");
+
   free(buf);
 }
 

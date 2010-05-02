@@ -190,9 +190,19 @@ rawbitreverse(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size)
 {
   size_t i;
+  void *temp;
 
-  for (i = 0; i < size; i++) {
-    SET(dest, destpos + i, !GET(src, srcpos + i));
+  if (srcpos + size <= destpos) {
+    for (i = 0; i < size; i++) {
+      SET(dest, destpos + i, !GET(src, srcpos + i));
+    }
+  } else {
+    temp = malloc(size / 8 + 1);
+    rawbitcpy(temp, 0, src, srcpos, size);
+    for (i = 0; i < size; i++) {
+      SET(dest, destpos + i, !GET(temp, i));
+    }
+    free(temp);
   }
 }
 
