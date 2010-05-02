@@ -198,11 +198,38 @@ testrawbitxor(void *data)
 
   test = data;
   buf = (uint8_t *)malloc(test->capa);
+
+  /* write to a different buffer */
   memset(buf, 0, test->capa);
   rawbitxor(buf, test->expos, test->bytes1, test->pos1,
       test->bytes2, test->pos2, test->size);
   testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
-      "failed");
+      "failed to write 'xor' bits to a different buffer");
+
+  /* same pointer (1) */
+  memset(buf, 0, test->capa);
+  rawbitcpy(buf, test->pos1, test->bytes1, test->pos1, test->size);
+  rawbitxor(buf, test->expos, buf, test->pos1,
+      test->bytes2, test->pos2, test->size);
+  /* clear outer range of the operated buffer */
+  rawbitclear(buf, 0, test->expos);
+  rawbitclear(buf, test->expos + test->size,
+      test->capa * 8 - (test->expos + test->size));
+  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+      "failed to write 'xor' bits to the same buffer (arg1)");
+
+  /* same pointer (2) */
+  memset(buf, 0, test->capa);
+  rawbitcpy(buf, test->pos2, test->bytes2, test->pos2, test->size);
+  rawbitxor(buf, test->expos, test->bytes1, test->pos1,
+      buf, test->pos2, test->size);
+  /* clear outer range of the operated buffer */
+  rawbitclear(buf, 0, test->expos);
+  rawbitclear(buf, test->expos + test->size,
+      test->capa * 8 - (test->expos + test->size));
+  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+      "failed to write 'xor' bits to the same buffer (arg2)");
+
   free(buf);
 }
 

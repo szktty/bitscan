@@ -177,11 +177,24 @@ void
 rawbitxor(void *dest, size_t destpos, const void *bits1, size_t pos1,
    const void *bits2, size_t pos2, size_t size)
 {
-  size_t i;
+  size_t i, capa;
+  void *temp1, *temp2;
 
-  for (i = 0; i < size; i++) {
-    SET(dest, destpos + i,
-        GET(bits1, pos1 + i) ^ GET(bits2, pos2 + i));
+  if (((size_t)bits1 + pos1 >= (size_t)dest + destpos) &&
+      ((size_t)bits2 + pos2 >= (size_t)dest + destpos)) {
+    for (i = 0; i < size; i++) {
+      SET(dest, destpos + i, GET(bits1, pos1 + i) ^ GET(bits2, pos2 + i));
+    }
+  } else {
+    capa = (size / 8 + 1) * 2;
+    temp1 = malloc(capa);
+    temp2 = temp1 + capa / 2;
+    rawbitcpy(temp1, 0, bits1, pos1, size);
+    rawbitcpy(temp2, 0, bits2, pos2, size);
+    for (i = 0; i < size; i++) {
+      SET(dest, destpos + i, GET(temp1, i) ^ GET(temp2, i));
+    }
+    free(temp1);
   }
 }
 
