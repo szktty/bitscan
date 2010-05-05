@@ -83,6 +83,9 @@ extern void rawbitxor(void *dest, size_t destpos,
    const void *bits2, size_t pos2, size_t size);
 extern void rawbitreverse(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size);
+extern void rawbitrsort(void *dest, size_t destpos,
+    const void *src, size_t srcpos, size_t size);
+
 
 extern void rawbitcpy(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size);
@@ -149,6 +152,7 @@ extern void bisizer(bitarray *dest, size_t destpos,
 extern void bitxor(bitarray *dest, size_t destpos,
    const bitarray *src, size_t srcpos,  size_t size);
 extern void bitreverse(bitarray *bits, size_t pos, size_t size);
+extern void bitrsort(bitarray *bits, size_t pos, size_t size);
 
 extern void bitappend(bitarray *dest, const bitarray *src,
     size_t pos, size_t size);
