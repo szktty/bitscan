@@ -205,7 +205,8 @@ rawbitreverse(void *dest, size_t destpos,
   size_t i;
   void *temp;
 
-  if (srcpos + size <= destpos) {
+  if ((size_t)src + srcpos + size < dest ||
+      (size_t)dest + destpos + size < src) {
     for (i = 0; i < size; i++) {
       SET(dest, destpos + i, !GET(src, srcpos + i));
     }
