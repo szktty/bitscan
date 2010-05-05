@@ -180,8 +180,10 @@ rawbitxor(void *dest, size_t destpos, const void *bits1, size_t pos1,
   size_t i, capa;
   void *temp1, *temp2;
 
-  if (((size_t)bits1 + pos1 >= (size_t)dest + destpos) &&
-      ((size_t)bits2 + pos2 >= (size_t)dest + destpos)) {
+  if (((size_t)bits1 + pos1 + size < (size_t)dest ||
+        (size_t)dest + destpos + size < (size_t)bits1) &&
+      ((size_t)bits2 + pos2 + size < (size_t)dest ||
+        (size_t)dest + destpos + size < (size_t)bits2)) {
     for (i = 0; i < size; i++) {
       SET(dest, destpos + i, GET(bits1, pos1 + i) ^ GET(bits2, pos2 + i));
     }
@@ -205,8 +207,8 @@ rawbitreverse(void *dest, size_t destpos,
   size_t i;
   void *temp;
 
-  if ((size_t)src + srcpos + size < dest ||
-      (size_t)dest + destpos + size < src) {
+  if ((size_t)src + srcpos + size < (size_t)dest ||
+      (size_t)dest + destpos + size < (size_t)src) {
     for (i = 0; i < size; i++) {
       SET(dest, destpos + i, !GET(src, srcpos + i));
     }
