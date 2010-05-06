@@ -22,6 +22,12 @@
 
 #include "bitscan.h"
 
+typedef enum BITOP {
+  ANDOP,
+  OROP,
+  XOROP
+} BITOP;
+
 static bitalloc default_alloc = {
   malloc,
   realloc,
@@ -43,6 +49,10 @@ static bitalloc default_alloc = {
     AT(bytes,idx) = (AT(bytes,idx) & ~(1<<SHIFTS(idx))) |   \
       ((v)&1?1<<SHIFTS(idx):0);                             \
   } while (0)
+
+static void rawbitop(BITOP op, void *dest, size_t destpos,
+    const void *bits1, size_t pos1,
+    const void *bits2, size_t pos2, size_t size);
 
 int
 rawbitcmp(const void *bits1, size_t pos1,
@@ -149,33 +159,10 @@ rawbitstdrand(void *bits, size_t pos, size_t size)
   rawbitrand(bits, pos, size, sizeof(int) * 8, stdrand);
 }
 
-void
-rawbitand(void *dest, size_t destpos, const void *bits1, size_t pos1,
-   const void *bits2, size_t pos2, size_t size)
-{
-  size_t i;
-
-  for (i = 0; i < size; i++) {
-    SET(dest, destpos + i,
-        GET(bits1, pos1 + i) & GET(bits2, pos2 + i));
-  }
-}
-
-void
-rawbitor(void *dest, size_t destpos, const void *bits1, size_t pos1,
-   const void *bits2, size_t pos2, size_t size)
-{
-  size_t i;
-
-  for (i = 0; i < size; i++) {
-    SET(dest, destpos + i,
-        GET(bits1, pos1 + i) | GET(bits2, pos2 + i));
-  }
-}
-
-void
-rawbitxor(void *dest, size_t destpos, const void *bits1, size_t pos1,
-   const void *bits2, size_t pos2, size_t size)
+static void
+rawbitop(BITOP op, void *dest, size_t destpos,
+    const void *bits1, size_t pos1,
+    const void *bits2, size_t pos2, size_t size)
 {
   size_t i, capa;
   void *temp1, *temp2;
@@ -184,8 +171,22 @@ rawbitxor(void *dest, size_t destpos, const void *bits1, size_t pos1,
         (size_t)dest + destpos + size < (size_t)bits1) &&
       ((size_t)bits2 + pos2 + size < (size_t)dest ||
         (size_t)dest + destpos + size < (size_t)bits2)) {
-    for (i = 0; i < size; i++) {
-      SET(dest, destpos + i, GET(bits1, pos1 + i) ^ GET(bits2, pos2 + i));
+    switch (op) {
+    case ANDOP:
+      for (i = 0; i < size; i++) {
+        SET(dest, destpos + i, GET(bits1, pos1 + i) & GET(bits2, pos2 + i));
+      }
+      break;
+    case OROP:
+      for (i = 0; i < size; i++) {
+        SET(dest, destpos + i, GET(bits1, pos1 + i) | GET(bits2, pos2 + i));
+      }
+      break;
+    case XOROP:
+      for (i = 0; i < size; i++) {
+        SET(dest, destpos + i, GET(bits1, pos1 + i) ^ GET(bits2, pos2 + i));
+      }
+      break;
     }
   } else {
     capa = (size / 8 + 1) * 2;
@@ -193,11 +194,47 @@ rawbitxor(void *dest, size_t destpos, const void *bits1, size_t pos1,
     temp2 = temp1 + capa / 2;
     rawbitcpy(temp1, 0, bits1, pos1, size);
     rawbitcpy(temp2, 0, bits2, pos2, size);
-    for (i = 0; i < size; i++) {
-      SET(dest, destpos + i, GET(temp1, i) ^ GET(temp2, i));
+
+    switch (op) {
+    case ANDOP:
+      for (i = 0; i < size; i++) {
+        SET(dest, destpos + i, GET(temp1, i) & GET(temp2, i));
+      }
+      break;
+    case OROP:
+      for (i = 0; i < size; i++) {
+        SET(dest, destpos + i, GET(temp1, i) | GET(temp2, i));
+      }
+      break;
+    case XOROP:
+      for (i = 0; i < size; i++) {
+        SET(dest, destpos + i, GET(temp1, i) ^ GET(temp2, i));
+      }
+      break;
     }
     free(temp1);
   }
+}
+
+void
+rawbitand(void *dest, size_t destpos, const void *bits1, size_t pos1,
+   const void *bits2, size_t pos2, size_t size)
+{
+  rawbitop(ANDOP, dest, destpos, bits1, pos1, bits2, pos2, size);
+}
+
+void
+rawbitor(void *dest, size_t destpos, const void *bits1, size_t pos1,
+   const void *bits2, size_t pos2, size_t size)
+{
+  rawbitop(OROP, dest, destpos, bits1, pos1, bits2, pos2, size);
+}
+
+void
+rawbitxor(void *dest, size_t destpos, const void *bits1, size_t pos1,
+   const void *bits2, size_t pos2, size_t size)
+{
+  rawbitop(XOROP, dest, destpos, bits1, pos1, bits2, pos2, size);
 }
 
 void
