@@ -117,6 +117,30 @@ testrawbitop(int op, void *data)
 }
 
 static void **
+datatestrawbitand()
+{
+  return datatestrawbitop(ANDOP);
+}
+
+static void
+testrawbitand(void *data)
+{
+  testrawbitop(ANDOP, data);
+}
+
+static void **
+datatestrawbitor()
+{
+  return datatestrawbitop(OROP);
+}
+
+static void
+testrawbitor(void *data)
+{
+  testrawbitop(OROP, data);
+}
+
+static void **
 datatestrawbitxor()
 {
   return datatestrawbitop(XOROP);
@@ -197,6 +221,8 @@ testrawbitreverse(void *data)
 void
 inittestrawbitop()
 {
+  testadd("testrawbitand", datatestrawbitand, testrawbitand, freetestrawbitop);
+  testadd("testrawbitor", datatestrawbitor, testrawbitor, freetestrawbitop);
   testadd("testrawbitxor", datatestrawbitxor, testrawbitxor, freetestrawbitop);
   TESTADD(testrawbitreverse);
 }
