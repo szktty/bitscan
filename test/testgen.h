@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "bitscan.h"
 
 #ifdef __cplusplus
 extern "C" {
