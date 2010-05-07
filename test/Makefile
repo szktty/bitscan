@@ -7,16 +7,15 @@ OBJS = bitscan.o main.o test.o testgen.o \
 	   testrawbitset.o testmake.o
 MAIN = main
 
-all: bitscan $(OBJS)
-	cd ..; make
+all: test
 
 bitscan:
 	cp ../bitscan.h ../bitscan.c .
 
-clean:
-	rm -rf $(MAIN) $(OBJS)
-
-test: all
+test: bitscan $(OBJS)
 	$(CC) -o $(MAIN) $(CFLAGS) $(OBJS)
 	./$(MAIN)
+
+clean:
+	rm -rf $(MAIN) $(OBJS)
 
