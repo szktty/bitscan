@@ -259,6 +259,28 @@ rawbitnot(void *dest, size_t destpos,
   }
 }
 
+void
+rawbitreverse(void *dest, size_t destpos,
+    const void *src, size_t srcpos, size_t size)
+{
+  size_t i;
+  void *temp;
+
+  if ((size_t)src + srcpos + size < (size_t)dest ||
+      (size_t)dest + destpos + size < (size_t)src) {
+    for (i = 0; i < size; i++) {
+      SET(dest, destpos + i, GET(src, srcpos + (size - i - 1)));
+    }
+  } else {
+    temp = malloc(size / 8 + 1);
+    rawbitcpy(temp, 0, src, srcpos, size);
+    for (i = 0; i < size; i++) {
+      SET(dest, destpos + i, GET(temp, (size - i - 1)));
+    }
+    free(temp);
+  }
+}
+
 bitarray *
 bitmake(void *buf, size_t pos, size_t size, bool copy, const bitalloc *alloc)
 {

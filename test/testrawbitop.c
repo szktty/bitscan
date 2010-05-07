@@ -217,6 +217,72 @@ testrawbitnot(void *data)
   free(buf);
 }
 
+static void **
+datatestrawbitreverse()
+{
+  struct testdata **data;
+  static size_t n = 10000, maxcapa = 1024;
+  size_t i, j;
+
+  data = (struct testdata **)malloc(sizeof(struct testdata *) * (n+1));
+  data[n] = NULL;
+
+  for (i = 0; i < n; i++) {
+    data[i] = (struct testdata *)malloc(sizeof(struct testdata));
+    data[i]->capa = gencapa(maxcapa);
+    data[i]->size = gensize(data[i]->capa);
+    data[i]->pos1 = genpos(data[i]->capa, data[i]->size);
+    data[i]->expos = genpos(data[i]->capa, data[i]->size);
+    data[i]->bytes1 = (uint8_t *)malloc(data[i]->capa);
+    data[i]->expected = (uint8_t *)malloc(data[i]->capa);
+
+    rawbitstdrand(data[i]->bytes1, 0, data[i]->capa * 8);
+    memcpy(data[i]->expected, data[i]->bytes1, data[i]->capa);
+
+    for (j = 0; j < data[i]->size; j++) {
+      rawbitset(data[i]->expected, data[i]->expos + j,
+          rawbitget(data[i]->bytes1,
+            data[i]->pos1 + (data[i]->size - j - 1)));
+    }
+  }
+
+  return (void **)data;
+}
+
+static void
+freetestrawbitreverse(void *data)
+{
+  struct testdata *test;
+
+  test = data;
+  free(test->bytes1);
+  free(test->expected);
+}
+
+static void
+testrawbitreverse(void *data)
+{
+  struct testdata *test;
+  uint8_t *buf;
+
+  test = data;
+  buf = (uint8_t *)malloc(test->capa);
+
+  /* different pointers */
+  memcpy(buf, test->bytes1, test->capa);
+  rawbitreverse(buf, test->expos, test->bytes1, test->pos1, test->size);
+  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+      "failed to write reversed bits to a different pointer");
+
+  /* same pointer */
+  memcpy(buf, test->bytes1, test->capa);
+  rawbitreverse(buf, test->expos, buf, test->pos1, test->size);
+  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+      "failed to write reversed bits to the pointer");
+
+  free(buf);
+}
+
 void
 inittestrawbitop()
 {
@@ -224,5 +290,6 @@ inittestrawbitop()
   testadd("testrawbitor", datatestrawbitor, testrawbitor, freetestrawbitop);
   testadd("testrawbitxor", datatestrawbitxor, testrawbitxor, freetestrawbitop);
   TESTADD(testrawbitnot);
+  TESTADD(testrawbitreverse);
 }
 
