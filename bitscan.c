@@ -50,6 +50,8 @@ static bitalloc default_alloc = {
       ((v)&1?1<<SHIFTS(idx):0);                             \
   } while (0)
 
+static void rawbitshift(void *dest, size_t destpos,
+    const void *src, size_t srcpos, size_t size, size_t shift, bool left);
 static void rawbitop(BITOP op, void *dest, size_t destpos,
     const void *bits1, size_t pos1,
     const void *bits2, size_t pos2, size_t size);
@@ -157,6 +159,75 @@ void
 rawbitstdrand(void *bits, size_t pos, size_t size)
 {
   rawbitrand(bits, pos, size, sizeof(int) * 8, stdrand);
+}
+
+static void
+rawbitshift(void *dest, size_t destpos, const void *src, size_t srcpos,
+    size_t size, size_t shift, bool left)
+{
+  size_t i;
+  void *temp;
+
+  if (shift == 0) {
+    rawbitcpy(dest, destpos, src, srcpos, size);
+    return;
+  }
+
+  if ((size_t)src + srcpos + size < (size_t)dest ||
+      (size_t)dest + destpos + size < (size_t)src) {
+    if (left) {
+      for (i = 0; i < size; i++) {
+        if (i + shift < size) {
+          SET(dest, destpos + i, GET(src, srcpos + i + shift));
+        } else {
+          SET(dest, destpos + i, false);
+        }
+      }
+    } else {
+      for (i = 0; i < size; i++) {
+        if (i > shift) {
+          SET(dest, destpos + i, GET(src, srcpos + i - shift));
+        } else {
+          SET(dest, destpos + i, false);
+        }
+      }
+    }
+  } else {
+    temp = malloc(size / 8 + 1);
+    rawbitcpy(temp, 0, src, srcpos, size);
+    if (left) {
+      for (i = 0; i < size; i++) {
+        if (i + shift < size) {
+          SET(dest, destpos + i, GET(temp, i + shift));
+        } else {
+          SET(dest, destpos + i, false);
+        }
+      }
+    } else {
+      for (i = 0; i < size; i++) {
+        if (i > shift) {
+          SET(dest, destpos + i, GET(temp, i - shift));
+        } else {
+          SET(dest, destpos + i, false);
+        }
+      }
+    }
+    free(temp);
+  }
+}
+
+void
+rawbitlshift(void *dest, size_t destpos, const void *src, size_t srcpos,
+    size_t size, size_t shift)
+{
+  rawbitshift(dest, destpos, src, srcpos, size, shift, true);
+}
+
+void
+rawbitrshift(void *dest, size_t destpos, const void *src, size_t srcpos,
+    size_t size, size_t shift)
+{
+  rawbitshift(dest, destpos, src, srcpos, size, shift, false);
 }
 
 static void

@@ -68,8 +68,10 @@ extern void rawbitrand(void *bits, size_t pos, size_t size,
     size_t randsize, void (*rand)(void *buf));
 extern void rawbitstdrand(void *bits, size_t pos, size_t size);
 
-extern void rawbitlshift(void *bits, size_t pos, size_t size, size_t shift);
-extern void rawbitrshift(void *bits, size_t pos, size_t size, size_t shift);
+extern void rawbitlshift(void *dest, size_t destpos,
+    const void *src, size_t srcpos, size_t size, size_t shift);
+extern void rawbitrshift(void *dest, size_t destpos,
+    const void *src, size_t srcpos, size_t size, size_t shift);
 extern void rawbitlrotate(void *bits, size_t pos, size_t size, size_t rotate);
 extern void rawbitrrotate(void *bits, size_t pos, size_t size, size_t rotate);
 extern void rawbitand(void *dest, size_t destpos,
