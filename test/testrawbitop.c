@@ -153,7 +153,7 @@ testrawbitxor(void *data)
 }
 
 static void **
-datatestrawbitreverse()
+datatestrawbitnot()
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 1024;
@@ -184,7 +184,7 @@ datatestrawbitreverse()
 }
 
 static void
-freetestrawbitreverse(void *data)
+freetestrawbitnot(void *data)
 {
   struct testdata *test;
 
@@ -194,7 +194,7 @@ freetestrawbitreverse(void *data)
 }
 
 static void
-testrawbitreverse(void *data)
+testrawbitnot(void *data)
 {
   struct testdata *test;
   uint8_t *buf;
@@ -204,15 +204,15 @@ testrawbitreverse(void *data)
 
   /* different pointers */
   memcpy(buf, test->bytes1, test->capa);
-  rawbitreverse(buf, test->expos, test->bytes1, test->pos1, test->size);
+  rawbitnot(buf, test->expos, test->bytes1, test->pos1, test->size);
   testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
-      "failed to write reversed bits to a different pointer");
+      "failed to write notd bits to a different pointer");
 
   /* same pointer */
   memcpy(buf, test->bytes1, test->capa);
-  rawbitreverse(buf, test->expos, buf, test->pos1, test->size);
+  rawbitnot(buf, test->expos, buf, test->pos1, test->size);
   testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
-      "failed to write reversed bits to the pointer");
+      "failed to write notd bits to the pointer");
 
   free(buf);
 }
@@ -223,6 +223,6 @@ inittestrawbitop()
   testadd("testrawbitand", datatestrawbitand, testrawbitand, freetestrawbitop);
   testadd("testrawbitor", datatestrawbitor, testrawbitor, freetestrawbitop);
   testadd("testrawbitxor", datatestrawbitxor, testrawbitxor, freetestrawbitop);
-  TESTADD(testrawbitreverse);
+  TESTADD(testrawbitnot);
 }
 

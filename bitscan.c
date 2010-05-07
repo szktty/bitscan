@@ -238,7 +238,7 @@ rawbitxor(void *dest, size_t destpos, const void *bits1, size_t pos1,
 }
 
 void
-rawbitreverse(void *dest, size_t destpos,
+rawbitnot(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size)
 {
   size_t i;
