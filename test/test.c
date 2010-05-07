@@ -35,7 +35,6 @@ static unsigned int curtests;
 void
 testrun()
 {
-  size_t i;
   void **data, **orig;
   faillog *fail;
 

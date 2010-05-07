@@ -1,5 +1,6 @@
 #include "bitscan.h"
 #include "test.h"
+#include "testgen.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -105,7 +106,6 @@ testmake_copy(void *data)
 {
   struct datatestmake *test;
   bitarray *bits;
-  size_t i;
   bitalloc *alloc = NULL;
 
   initalloc();
@@ -130,7 +130,6 @@ testmake_nocopy(void *data)
 {
   struct datatestmake *test;
   bitarray *bits;
-  size_t i;
   bitalloc *alloc = NULL;
 
   initalloc();

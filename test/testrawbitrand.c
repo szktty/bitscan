@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "test.h"
+#include "testgen.h"
 
 struct testdata {
   uint8_t *bytes;
@@ -17,8 +18,7 @@ datatestrawbitstdrand()
 {
   struct testdata **data;
   static size_t n = 10000, bytesize = 512;
-  size_t i, j;
-  bool b;
+  size_t i;
 
   data = (struct testdata **)malloc(sizeof(struct testdata *) * (n+1));
   data[n] = NULL;
@@ -57,7 +57,6 @@ testrawbitstdrand(void *data)
   struct testdata *test;
   size_t i;
   bool modified = false;
-  static size_t count;
   char *errmsg;
 
   test = data;

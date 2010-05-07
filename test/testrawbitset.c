@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "test.h"
+#include "testgen.h"
 
 struct testdata {
   size_t capa;

@@ -4,6 +4,7 @@
 #include <string.h>
 #include "bitscan.h"
 #include "test.h"
+#include "testgen.h"
 
 struct testdata {
   size_t capa;
@@ -84,10 +85,9 @@ testrawbitop(int op, void *data)
 {
   struct testdata *test;
   uint8_t *buf;
-  size_t i;
   void (*tester)(void *dest, size_t destpos,
       const void *bits1, size_t pos1,
-      const void *bits2, size_t pos2, size_t size);
+      const void *bits2, size_t pos2, size_t size) = NULL;
 
   if (op == ANDOP)
     tester = rawbitand;
@@ -198,7 +198,6 @@ testrawbitreverse(void *data)
 {
   struct testdata *test;
   uint8_t *buf;
-  size_t i;
 
   test = data;
   buf = (uint8_t *)malloc(test->capa);
