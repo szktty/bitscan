@@ -4,7 +4,7 @@ OBJS = bitscan.o main.o test.o testgen.o \
 	   testrawbitclear.o testrawbitcmp.o testrawbitcpy.o \
 	   testrawbitget.o \
 	   testrawbitop.o testrawbitrand.o \
-	   testrawbitset.o testmake.o
+	   testrawbitset.o testrawbitshift.o testmake.o
 MAIN = main
 
 all: test

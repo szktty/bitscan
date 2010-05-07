@@ -9,6 +9,7 @@ extern void inittestrawbitrand();
 extern void inittestrawbitclear();
 extern void inittestrawbitcpy();
 extern void inittestrawbitop();
+extern void inittestrawbitshift();
 extern void inittestmake();
 
 int
@@ -22,6 +23,7 @@ main(int argc, char **argv)
   inittestrawbitop();
   inittestrawbitrand();
   inittestrawbitset();
+  inittestrawbitshift();
   inittestmake();
   testrun();
   return 0;
