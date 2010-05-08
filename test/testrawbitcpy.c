@@ -11,6 +11,7 @@ struct testdata {
   size_t srcpos;
   size_t destpos;
   size_t size;
+  uint8_t *expected;
 };
 
 static void **
@@ -18,7 +19,7 @@ datatestrawbitcpy()
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 1024;
-  size_t i;
+  size_t i, j;
 
   data = (struct testdata **)malloc(sizeof(struct testdata *) * (n+1));
   data[n] = NULL;
@@ -30,7 +31,14 @@ datatestrawbitcpy()
     data[i]->srcpos = genpos(data[i]->capa, data[i]->size);
     data[i]->destpos = genpos(data[i]->capa, data[i]->size);
     data[i]->src = (uint8_t *)malloc(data[i]->capa);
-    rawbitstdrand(data[i]->src, data[i]->srcpos, data[i]->size);
+    data[i]->expected = (uint8_t *)malloc(data[i]->capa);
+    rawbitstdrand(data[i]->src, 0, data[i]->capa * 8);
+    memcpy(data[i]->expected, data[i]->src, data[i]->capa);
+
+    for (j = 0; j < data[i]->size; j++) {
+      rawbitset(data[i]->expected, data[i]->destpos + j,
+          rawbitget(data[i]->src, data[i]->srcpos + j));
+    }
   }
 
   return (void **)data;
@@ -50,37 +58,22 @@ testrawbitcpy(void *data)
 {
   struct testdata *test;
   uint8_t *buf;
-  size_t i;
 
   test = data;
   buf = (uint8_t *)malloc(test->capa);
-  memset(buf, 0, test->capa);
+
+  memcpy(buf, test->src, test->capa);
   rawbitcpy(buf, test->destpos, test->src, test->srcpos, test->size);
+  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+      "fail different buffer");
 
-  for (i = 0; i < test->destpos; i++) {
-    if (rawbitget(buf, i)) {
-      testfail("bits between 0 and pos are modified");
-      goto error;
-    }
-  }
-
-  testassert(rawbiteq(test->src, test->srcpos,
-        buf, test->destpos, test->size),
-      "copied bits are wrong");
-
-  for (i = test->destpos + test->size; i < test->capa * 8; i++) {
-    if (rawbitget(buf, i)) {
-      testfail("rest bits are copied");
-      goto error;
-    }
-  }
+  memcpy(buf, test->src, test->capa);
+  rawbitcpy(buf, test->destpos, buf, test->srcpos, test->size);
+  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+      "fail same buffer");
 
   free(buf);
-  testassert(true, NULL);
   return;
-
-error:
-  free(buf);
 }
 
 void

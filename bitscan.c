@@ -113,10 +113,23 @@ void
 rawbitcpy(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size)
 {
-  size_t i = 0;
+  size_t i;
+  uint8_t *temp;
 
-  for (; i < size; i++) {
-    SET(dest, destpos + i, GET(src, srcpos + i));
+  if ((size_t)src + srcpos + size < (size_t)dest ||
+      (size_t)dest + destpos + size < (size_t)src) {
+    for (i = 0; i < size; i++) {
+      SET(dest, destpos + i, GET(src, srcpos + i));
+    }
+  } else {
+    temp = (uint8_t *)malloc(size / 8 + 1);
+    for (i = 0; i < size; i++) {
+      SET(temp, i, GET(src, srcpos + i));
+    }
+    for (i = 0; i < size; i++) {
+      SET(dest, destpos + i, GET(temp, i));
+    }
+    free(temp);
   }
 }
 
