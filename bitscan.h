@@ -98,19 +98,6 @@ extern size_t bitvsscanf(const void *bits, size_t pos,
 extern size_t bitfscanf(FILE *fp, const char *format, ...);
 extern size_t bitvfscanf(FILE *fp, const char *format, va_list ap);
 
-extern bool bitmatch(const void *bits, size_t pos,
-    const void *pat, size_t patpos, size_t patsize);
-extern bool bitmatchf(const void *bits, size_t pos,
-    const char *format, ...);
-extern bool bitvmatchf(const void *bits, size_t pos,
-    const char *format, va_list ap); 
-extern size_t bitfind(const void *bits, size_t pos,
-    const void *pat, size_t patpos, size_t patsize);
-extern size_t bitfindf(const void *bits, size_t pos,
-    const char *format, ...);
-extern size_t bitvfindf(const void *bits, size_t pos,
-    const char *format, va_list ap);
-
 #ifdef __cplusplus
 }
 #endif
