@@ -89,10 +89,14 @@ extern size_t bitfprintf(FILE *fp, const char *format, ...);
 extern size_t bitvfprintf(FILE *fp, const char *format, va_list ap);
 extern size_t bitformatsize(const char *format);
 
+extern size_t bitscanf(const char *format, ...);
+extern size_t bitvscanf(const char *format, va_list ap); 
 extern size_t bitsscanf(const void *bits, size_t pos,
     const char *format, ...);
 extern size_t bitvsscanf(const void *bits, size_t pos,
     const char *format, va_list ap); 
+extern size_t bitfscanf(FILE *fp, const char *format, ...);
+extern size_t bitvfscanf(FILE *fp, const char *format, va_list ap);
 
 extern bool bitmatch(const void *bits, size_t pos,
     const void *pat, size_t patpos, size_t patsize);
