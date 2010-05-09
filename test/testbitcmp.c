@@ -16,7 +16,7 @@ struct testdata {
 };
 
 void **
-datatestrawbitcmp()
+datatestbitcmp()
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 1024;
@@ -39,17 +39,17 @@ datatestrawbitcmp()
     if (rand() % 2 == 0) {
       /* same bits */
       data[i]->expected = 0;
-      rawbitstdrand(data[i]->bytes1, data[i]->pos1, data[i]->size);
-      rawbitcpy(data[i]->bytes2, data[i]->pos2,
+      bitstdrand(data[i]->bytes1, data[i]->pos1, data[i]->size);
+      bitcpy(data[i]->bytes2, data[i]->pos2,
           data[i]->bytes1, data[i]->pos1, data[i]->size);
     } else {
-      rawbitstdrand(data[i]->bytes1, data[i]->pos1, data[i]->size);
-      rawbitstdrand(data[i]->bytes2, data[i]->pos2, data[i]->size);
+      bitstdrand(data[i]->bytes1, data[i]->pos1, data[i]->size);
+      bitstdrand(data[i]->bytes2, data[i]->pos2, data[i]->size);
 
       data[i]->expected = 0;
       for (j = 0; j < data[i]->size; j++) {
-        b1 = rawbitget(data[i]->bytes1, data[i]->pos1 + j);
-        b2 = rawbitget(data[i]->bytes2, data[i]->pos2 + j);
+        b1 = bitget(data[i]->bytes1, data[i]->pos1 + j);
+        b2 = bitget(data[i]->bytes2, data[i]->pos2 + j);
         if (b1 > b2) {
           data[i]->expected = 1;
           break;
@@ -65,7 +65,7 @@ datatestrawbitcmp()
 }
 
 static void
-freetestrawbitcmp(void *data)
+freetestbitcmp(void *data)
 {
   struct testdata *test;
 
@@ -75,31 +75,31 @@ freetestrawbitcmp(void *data)
 }
 
 void
-testrawbitcmp(void *data)
+testbitcmp(void *data)
 {
   struct testdata *test;
 
   test = (struct testdata *)data;
-  testassert(rawbitcmp(test->bytes1, test->pos1,
+  testassert(bitcmp(test->bytes1, test->pos1,
         test->bytes2, test->pos2, test->size) == test->expected,
       "test failed");
 }
 
 void
-testrawbiteq(void *data)
+testbiteq(void *data)
 {
   struct testdata *test;
 
   test = (struct testdata *)data;
-  testassert(rawbiteq(test->bytes1, test->pos1,
+  testassert(biteq(test->bytes1, test->pos1,
         test->bytes2, test->pos2, test->size) == (test->expected == 0),
       "test failed");
 }
 
 void
-inittestrawbitcmp()
+inittestbitcmp()
 {
-  TESTADD(testrawbitcmp);
-  testadd("testrawbiteq", datatestrawbitcmp, testrawbiteq, freetestrawbitcmp);
+  TESTADD(testbitcmp);
+  testadd("testbiteq", datatestbitcmp, testbiteq, freetestbitcmp);
 }
 

@@ -17,7 +17,7 @@ struct testdata {
 };
 
 static void **
-datatestrawbitlshift()
+datatestbitlshift()
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 1024;
@@ -37,19 +37,19 @@ datatestrawbitlshift()
     data[i]->bytes = (uint8_t *)malloc(data[i]->capa);
     data[i]->expected = (uint8_t *)malloc(data[i]->capa);
 
-    rawbitstdrand(data[i]->bytes, 0, data[i]->capa * 8);
+    bitstdrand(data[i]->bytes, 0, data[i]->capa * 8);
     memcpy(data[i]->expected, data[i]->bytes, data[i]->capa);
 
     if (data[i]->shift > 0) {
       for (j = 0; j < data[i]->size; j++) {
         if (j + data[i]->shift < data[i]->size)
-          f = rawbitget(data[i]->bytes, data[i]->pos + j + data[i]->shift);
+          f = bitget(data[i]->bytes, data[i]->pos + j + data[i]->shift);
         else
           f = false;
-        rawbitset(data[i]->expected, data[i]->expos + j, f);
+        bitset(data[i]->expected, data[i]->expos + j, f);
       }
     } else {
-      rawbitcpy(data[i]->expected, data[i]->expos,
+      bitcpy(data[i]->expected, data[i]->expos,
           data[i]->bytes, data[i]->pos, data[i]->size);
     }
   }
@@ -58,7 +58,7 @@ datatestrawbitlshift()
 }
 
 static void
-freetestrawbitlshift(void *data)
+freetestbitlshift(void *data)
 {
   struct testdata *test;
 
@@ -68,7 +68,7 @@ freetestrawbitlshift(void *data)
 }
 
 static void
-testrawbitlshift(void *data)
+testbitlshift(void *data)
 {
   struct testdata *test;
   uint8_t *buf;
@@ -78,23 +78,23 @@ testrawbitlshift(void *data)
 
   /* write to a different buffer */
   memcpy(buf, test->bytes, test->capa);
-  rawbitlshift(buf, test->expos, test->bytes, test->pos,
+  bitlshift(buf, test->expos, test->bytes, test->pos,
       test->size, test->shift);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "failed to write bits to a different buffer");
 
   /* same buffer */
   memcpy(buf, test->bytes, test->capa);
-  rawbitlshift(buf, test->expos, buf, test->pos,
+  bitlshift(buf, test->expos, buf, test->pos,
       test->size, test->shift);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "failed to write bits to a same buffer");
 
   free(buf);
 }
 
 static void **
-datatestrawbitrshift()
+datatestbitrshift()
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 1024;
@@ -114,19 +114,19 @@ datatestrawbitrshift()
     data[i]->bytes = (uint8_t *)malloc(data[i]->capa);
     data[i]->expected = (uint8_t *)malloc(data[i]->capa);
 
-    rawbitstdrand(data[i]->bytes, 0, data[i]->capa * 8);
+    bitstdrand(data[i]->bytes, 0, data[i]->capa * 8);
     memcpy(data[i]->expected, data[i]->bytes, data[i]->capa);
 
     if (data[i]->shift > 0) {
       for (j = 0; j < data[i]->size; j++) {
         if (j > data[i]->shift)
-          f = rawbitget(data[i]->bytes, data[i]->pos + j - data[i]->shift);
+          f = bitget(data[i]->bytes, data[i]->pos + j - data[i]->shift);
         else
           f = false;
-        rawbitset(data[i]->expected, data[i]->expos + j, f);
+        bitset(data[i]->expected, data[i]->expos + j, f);
       }
     } else {
-      rawbitcpy(data[i]->expected, data[i]->expos,
+      bitcpy(data[i]->expected, data[i]->expos,
           data[i]->bytes, data[i]->pos, data[i]->size);
     }
   }
@@ -135,7 +135,7 @@ datatestrawbitrshift()
 }
 
 static void
-freetestrawbitrshift(void *data)
+freetestbitrshift(void *data)
 {
   struct testdata *test;
 
@@ -145,7 +145,7 @@ freetestrawbitrshift(void *data)
 }
 
 static void
-testrawbitrshift(void *data)
+testbitrshift(void *data)
 {
   struct testdata *test;
   uint8_t *buf;
@@ -155,25 +155,25 @@ testrawbitrshift(void *data)
 
   /* write to a different buffer */
   memcpy(buf, test->bytes, test->capa);
-  rawbitrshift(buf, test->expos, test->bytes, test->pos,
+  bitrshift(buf, test->expos, test->bytes, test->pos,
       test->size, test->shift);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "failed to write bits to a different buffer");
 
   /* same buffer */
   memcpy(buf, test->bytes, test->capa);
-  rawbitrshift(buf, test->expos, buf, test->pos,
+  bitrshift(buf, test->expos, buf, test->pos,
       test->size, test->shift);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "failed to write bits to a same buffer");
 
   free(buf);
 }
 
 void
-inittestrawbitshift()
+inittestbitshift()
 {
-  TESTADD(testrawbitlshift);
-  TESTADD(testrawbitrshift);
+  TESTADD(testbitlshift);
+  TESTADD(testbitrshift);
 }
 

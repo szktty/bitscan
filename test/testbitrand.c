@@ -14,7 +14,7 @@ struct testdata {
 };
 
 static void **
-datatestrawbitstdrand()
+datatestbitstdrand()
 {
   struct testdata **data;
   static size_t n = 10000, bytesize = 512;
@@ -43,7 +43,7 @@ datatestrawbitstdrand()
 }
 
 static void
-freetestrawbitstdrand(void *data)
+freetestbitstdrand(void *data)
 {
   struct testdata *test;
 
@@ -52,7 +52,7 @@ freetestrawbitstdrand(void *data)
 }
 
 static void
-testrawbitstdrand(void *data)
+testbitstdrand(void *data)
 {
   struct testdata *test;
   size_t i;
@@ -61,16 +61,16 @@ testrawbitstdrand(void *data)
 
   test = data;
   memset(test->bytes, test->flag ? 0xff : 0, test->capa);
-  rawbitstdrand(test->bytes, test->pos, test->size);
+  bitstdrand(test->bytes, test->pos, test->size);
   for (i = 0; i < test->pos; i++) {
-    if (rawbitget(test->bytes, i) != test->flag) {
+    if (bitget(test->bytes, i) != test->flag) {
       testassert(false, "bits between 0 and pos are modified");
       return;
     }
   }
 
   for (i = test->pos; i < test->pos + test->size; i++) {
-    if (rawbitget(test->bytes, i) != test->flag) {
+    if (bitget(test->bytes, i) != test->flag) {
       modified = true;
       break;
     }
@@ -83,7 +83,7 @@ testrawbitstdrand(void *data)
   free(errmsg);
 
   for (i = test->pos + test->size; i < test->capa * 8; i++) {
-    if (rawbitget(test->bytes, i) != test->flag) {
+    if (bitget(test->bytes, i) != test->flag) {
       testassert(false, "rest bits are modified");
       return;
     }
@@ -92,8 +92,8 @@ testrawbitstdrand(void *data)
 }
 
 void
-inittestrawbitrand()
+inittestbitrand()
 {
-  TESTADD(testrawbitstdrand);
+  TESTADD(testbitstdrand);
 }
 

@@ -28,15 +28,6 @@ typedef enum BITOP {
   XOROP
 } BITOP;
 
-static bitalloc default_alloc = {
-  malloc,
-  realloc,
-  free
-};
-
-#define GROWRATE            1.6
-#define GROWSIZE(n)         (size_t)((n)*GROWRATE)
-
 #define BYTE(x)             (x/8)
 #define ISBYTEALIGN(x)      (x%8==0)
 
@@ -50,14 +41,14 @@ static bitalloc default_alloc = {
       ((v)&1?1<<SHIFTS(idx):0);                             \
   } while (0)
 
-static void rawbitshift(void *dest, size_t destpos,
+static void bitshift(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size, size_t shift, bool left);
-static void rawbitop(BITOP op, void *dest, size_t destpos,
+static void bitop(BITOP op, void *dest, size_t destpos,
     const void *bits1, size_t pos1,
     const void *bits2, size_t pos2, size_t size);
 
 int
-rawbitcmp(const void *bits1, size_t pos1,
+bitcmp(const void *bits1, size_t pos1,
     const void *bits2, size_t pos2, size_t size)
 {
   size_t i;
@@ -74,26 +65,26 @@ rawbitcmp(const void *bits1, size_t pos1,
 }
 
 bool
-rawbiteq(const void *bits1, size_t pos1,
+biteq(const void *bits1, size_t pos1,
     const void *bits2, size_t pos2, size_t size)
 {
-  return (bool)(rawbitcmp(bits1, pos1, bits2, pos2, size) == 0);
+  return (bool)(bitcmp(bits1, pos1, bits2, pos2, size) == 0);
 }
 
 bool
-rawbitget(const void *bits, size_t pos)
+bitget(const void *bits, size_t pos)
 {
   return (bool)GET(bits, pos);
 }
 
 void
-rawbitset(void *bits, size_t pos, bool value)
+bitset(void *bits, size_t pos, bool value)
 {
   SET(bits, pos, value);
 }
 
 void
-rawbitsets(void *bits, size_t pos, uint8_t byte, size_t size)
+bitsets(void *bits, size_t pos, uint8_t byte, size_t size)
 {
   size_t i;
 
@@ -110,7 +101,7 @@ rawbitsets(void *bits, size_t pos, uint8_t byte, size_t size)
 }
 
 void
-rawbitcpy(void *dest, size_t destpos,
+bitcpy(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size)
 {
   size_t i;
@@ -134,7 +125,7 @@ rawbitcpy(void *dest, size_t destpos,
 }
 
 void
-rawbitclear(void *bits, size_t pos, size_t size)
+bitclear(void *bits, size_t pos, size_t size)
 {
   size_t i = 0;
 
@@ -144,7 +135,7 @@ rawbitclear(void *bits, size_t pos, size_t size)
 }
 
 void
-rawbitrand(void *bits, size_t pos, size_t size,
+bitrand(void *bits, size_t pos, size_t size,
     size_t randsize, void (*rand)(void *buf))
 {
   size_t i, j, capa;
@@ -169,20 +160,20 @@ stdrand(void *buf)
 }
 
 void
-rawbitstdrand(void *bits, size_t pos, size_t size)
+bitstdrand(void *bits, size_t pos, size_t size)
 {
-  rawbitrand(bits, pos, size, sizeof(int) * 8, stdrand);
+  bitrand(bits, pos, size, sizeof(int) * 8, stdrand);
 }
 
 static void
-rawbitshift(void *dest, size_t destpos, const void *src, size_t srcpos,
+bitshift(void *dest, size_t destpos, const void *src, size_t srcpos,
     size_t size, size_t shift, bool left)
 {
   size_t i;
   void *temp;
 
   if (shift == 0) {
-    rawbitcpy(dest, destpos, src, srcpos, size);
+    bitcpy(dest, destpos, src, srcpos, size);
     return;
   }
 
@@ -207,7 +198,7 @@ rawbitshift(void *dest, size_t destpos, const void *src, size_t srcpos,
     }
   } else {
     temp = malloc(size / 8 + 1);
-    rawbitcpy(temp, 0, src, srcpos, size);
+    bitcpy(temp, 0, src, srcpos, size);
     if (left) {
       for (i = 0; i < size; i++) {
         if (i + shift < size) {
@@ -230,21 +221,21 @@ rawbitshift(void *dest, size_t destpos, const void *src, size_t srcpos,
 }
 
 void
-rawbitlshift(void *dest, size_t destpos, const void *src, size_t srcpos,
+bitlshift(void *dest, size_t destpos, const void *src, size_t srcpos,
     size_t size, size_t shift)
 {
-  rawbitshift(dest, destpos, src, srcpos, size, shift, true);
+  bitshift(dest, destpos, src, srcpos, size, shift, true);
 }
 
 void
-rawbitrshift(void *dest, size_t destpos, const void *src, size_t srcpos,
+bitrshift(void *dest, size_t destpos, const void *src, size_t srcpos,
     size_t size, size_t shift)
 {
-  rawbitshift(dest, destpos, src, srcpos, size, shift, false);
+  bitshift(dest, destpos, src, srcpos, size, shift, false);
 }
 
 static void
-rawbitop(BITOP op, void *dest, size_t destpos,
+bitop(BITOP op, void *dest, size_t destpos,
     const void *bits1, size_t pos1,
     const void *bits2, size_t pos2, size_t size)
 {
@@ -276,8 +267,8 @@ rawbitop(BITOP op, void *dest, size_t destpos,
     capa = (size / 8 + 1) * 2;
     temp1 = malloc(capa);
     temp2 = temp1 + capa / 2;
-    rawbitcpy(temp1, 0, bits1, pos1, size);
-    rawbitcpy(temp2, 0, bits2, pos2, size);
+    bitcpy(temp1, 0, bits1, pos1, size);
+    bitcpy(temp2, 0, bits2, pos2, size);
 
     switch (op) {
     case ANDOP:
@@ -301,28 +292,28 @@ rawbitop(BITOP op, void *dest, size_t destpos,
 }
 
 void
-rawbitand(void *dest, size_t destpos, const void *bits1, size_t pos1,
+bitand(void *dest, size_t destpos, const void *bits1, size_t pos1,
    const void *bits2, size_t pos2, size_t size)
 {
-  rawbitop(ANDOP, dest, destpos, bits1, pos1, bits2, pos2, size);
+  bitop(ANDOP, dest, destpos, bits1, pos1, bits2, pos2, size);
 }
 
 void
-rawbitor(void *dest, size_t destpos, const void *bits1, size_t pos1,
+bitor(void *dest, size_t destpos, const void *bits1, size_t pos1,
    const void *bits2, size_t pos2, size_t size)
 {
-  rawbitop(OROP, dest, destpos, bits1, pos1, bits2, pos2, size);
+  bitop(OROP, dest, destpos, bits1, pos1, bits2, pos2, size);
 }
 
 void
-rawbitxor(void *dest, size_t destpos, const void *bits1, size_t pos1,
+bitxor(void *dest, size_t destpos, const void *bits1, size_t pos1,
    const void *bits2, size_t pos2, size_t size)
 {
-  rawbitop(XOROP, dest, destpos, bits1, pos1, bits2, pos2, size);
+  bitop(XOROP, dest, destpos, bits1, pos1, bits2, pos2, size);
 }
 
 void
-rawbitnot(void *dest, size_t destpos,
+bitnot(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size)
 {
   size_t i;
@@ -335,7 +326,7 @@ rawbitnot(void *dest, size_t destpos,
     }
   } else {
     temp = malloc(size / 8 + 1);
-    rawbitcpy(temp, 0, src, srcpos, size);
+    bitcpy(temp, 0, src, srcpos, size);
     for (i = 0; i < size; i++) {
       SET(dest, destpos + i, !GET(temp, i));
     }
@@ -344,7 +335,7 @@ rawbitnot(void *dest, size_t destpos,
 }
 
 void
-rawbitreverse(void *dest, size_t destpos,
+bitreverse(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size)
 {
   size_t i;
@@ -357,91 +348,11 @@ rawbitreverse(void *dest, size_t destpos,
     }
   } else {
     temp = malloc(size / 8 + 1);
-    rawbitcpy(temp, 0, src, srcpos, size);
+    bitcpy(temp, 0, src, srcpos, size);
     for (i = 0; i < size; i++) {
       SET(dest, destpos + i, GET(temp, (size - i - 1)));
     }
     free(temp);
   }
-}
-
-bitarray *
-bitmake(void *buf, size_t pos, size_t size, bool copy, const bitalloc *alloc)
-{
-  bitarray *bits;
-
-  if (alloc == NULL)
-    alloc = &default_alloc;
-
-  bits = (bitarray *)alloc->alloc(sizeof(bitarray));
-  bits->_alloc = alloc;
-  bits->_size = size;
-  bits->_copy = copy;
-  if (copy) {
-    bits->_capa = GROWSIZE((size / 8) + 2);
-    bits->_bytes = (uint8_t *)alloc->alloc(bits->_capa);
-    memset(bits->_bytes, 0, bits->_capa);
-    bits->_pos = 0;
-    rawbitcpy(bits->_bytes, 0, buf, pos, size);
-  } else {
-    bits->_capa = 0;
-    bits->_bytes = buf;
-    bits->_pos = pos;
-  }
-
-  return bits;
-}
-
-void
-bitinit(bitarray *bits, void *buf, size_t pos, size_t size)
-{
-  bits->_alloc = NULL;
-  bits->_capa = 0;
-  bits->_bytes = buf;
-  bits->_pos = pos;
-  bits->_size = size;
-  bits->_copy = true;
-}
-
-void
-bitfree(bitarray *bits)
-{
-  if (bits->_copy)
-    bits->_alloc->free(bits->_bytes);
-  bits->_alloc->free(bits);
-}
-
-size_t
-bitsize(const bitarray *bits)
-{
-  return bits->_size;
-}
-
-bool
-bitgrow(bitarray *bits, size_t growbytes)
-{
-  void *new;
-
-  if (bits->_copy) {
-    new = realloc(bits->_bytes, growbytes);
-    if (new != NULL) {
-      bits->_bytes = new;
-      return true;
-    } else
-      return false;
-  } else
-    return false;
-}
-
-bool
-bitget(const bitarray *bits, size_t pos)
-{
-  return (bool)GET(bits->_bytes, pos);
-}
-
-void
-bitset(bitarray *bits, size_t pos, bool value)
-{
-  SET(bits->_bytes, pos, value);
 }
 

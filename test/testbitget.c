@@ -12,7 +12,7 @@ struct testdata {
 };
 
 static void **
-datatestrawbitget()
+datatestbitget()
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 1024;
@@ -31,7 +31,7 @@ datatestrawbitget()
     data[i]->expected = (uint8_t *)malloc(capa * 8);
     for (j = 0; j < data[i]->size; j++) {
       b = genbool();
-      rawbitset(data[i]->bytes, data[i]->pos + j, b);
+      bitset(data[i]->bytes, data[i]->pos + j, b);
       data[i]->expected[j] = b;
     }
   }
@@ -40,7 +40,7 @@ datatestrawbitget()
 }
 
 static void
-freetestrawbitget(void *data)
+freetestbitget(void *data)
 {
   struct testdata *test;
 
@@ -50,14 +50,14 @@ freetestrawbitget(void *data)
 }
 
 static void
-testrawbitget(void *data)
+testbitget(void *data)
 {
   struct testdata *test;
   size_t i;
 
   test = data;
   for (i = 0; i < test->size; i++) {
-    if (rawbitget(test->bytes, test->pos + i) != test->expected[i]) {
+    if (bitget(test->bytes, test->pos + i) != test->expected[i]) {
       testassert(false, "failed");
       return;
     }
@@ -66,8 +66,8 @@ testrawbitget(void *data)
 }
 
 void
-inittestrawbitget()
+inittestbitget()
 {
-  TESTADD(testrawbitget);
+  TESTADD(testbitget);
 }
 

@@ -24,7 +24,7 @@ enum TESTOP {
 };
 
 static void **
-datatestrawbitop(int op)
+datatestbitop(int op)
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 1024;
@@ -45,13 +45,13 @@ datatestrawbitop(int op)
     data[i]->bytes2 = (uint8_t *)malloc(data[i]->capa);
     data[i]->expected = (uint8_t *)malloc(data[i]->capa);
 
-    rawbitstdrand(data[i]->bytes1, 0, data[i]->capa * 8);
-    rawbitstdrand(data[i]->bytes2, 0, data[i]->capa * 8);
+    bitstdrand(data[i]->bytes1, 0, data[i]->capa * 8);
+    bitstdrand(data[i]->bytes2, 0, data[i]->capa * 8);
     memcpy(data[i]->expected, data[i]->bytes1, data[i]->capa);
 
     for (j = 0; j < data[i]->size; j++) {
-      f1 = rawbitget(data[i]->bytes1, data[i]->pos1 + j);
-      f2 = rawbitget(data[i]->bytes2, data[i]->pos2 + j);
+      f1 = bitget(data[i]->bytes1, data[i]->pos1 + j);
+      f2 = bitget(data[i]->bytes2, data[i]->pos2 + j);
       if (op == ANDOP)
         fop = f1 & f2;
       else if (op == OROP)
@@ -59,10 +59,10 @@ datatestrawbitop(int op)
       else if (op == XOROP)
         fop = f1 ^ f2;
       else {
-        printf("testrawbitop: unknown op\n");
+        printf("testbitop: unknown op\n");
         exit(1);
       }
-      rawbitset(data[i]->expected, data[i]->expos + j, fop);
+      bitset(data[i]->expected, data[i]->expos + j, fop);
     }
   }
 
@@ -70,7 +70,7 @@ datatestrawbitop(int op)
 }
 
 static void
-freetestrawbitop(void *data)
+freetestbitop(void *data)
 {
   struct testdata *test;
 
@@ -81,7 +81,7 @@ freetestrawbitop(void *data)
 }
 
 static void
-testrawbitop(int op, void *data)
+testbitop(int op, void *data)
 {
   struct testdata *test;
   uint8_t *buf;
@@ -90,11 +90,11 @@ testrawbitop(int op, void *data)
       const void *bits2, size_t pos2, size_t size) = NULL;
 
   if (op == ANDOP)
-    tester = rawbitand;
+    tester = bitand;
   else if (op == OROP)
-    tester = rawbitor;
+    tester = bitor;
   else if (op == XOROP)
-    tester = rawbitxor;
+    tester = bitxor;
 
   test = data;
   buf = (uint8_t *)malloc(test->capa);
@@ -103,57 +103,57 @@ testrawbitop(int op, void *data)
   memcpy(buf, test->bytes1, test->capa);
   tester(buf, test->expos, test->bytes1, test->pos1,
       test->bytes2, test->pos2, test->size);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "failed to write bits to a different buffer");
 
   /* same buffer */
   memcpy(buf, test->bytes1, test->capa);
   tester(buf, test->expos, buf, test->pos1,
       test->bytes2, test->pos2, test->size);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "failed to write bits to a same buffer");
 
   free(buf);
 }
 
 static void **
-datatestrawbitand()
+datatestbitand()
 {
-  return datatestrawbitop(ANDOP);
+  return datatestbitop(ANDOP);
 }
 
 static void
-testrawbitand(void *data)
+testbitand(void *data)
 {
-  testrawbitop(ANDOP, data);
+  testbitop(ANDOP, data);
 }
 
 static void **
-datatestrawbitor()
+datatestbitor()
 {
-  return datatestrawbitop(OROP);
+  return datatestbitop(OROP);
 }
 
 static void
-testrawbitor(void *data)
+testbitor(void *data)
 {
-  testrawbitop(OROP, data);
+  testbitop(OROP, data);
 }
 
 static void **
-datatestrawbitxor()
+datatestbitxor()
 {
-  return datatestrawbitop(XOROP);
+  return datatestbitop(XOROP);
 }
 
 static void
-testrawbitxor(void *data)
+testbitxor(void *data)
 {
-  testrawbitop(XOROP, data);
+  testbitop(XOROP, data);
 }
 
 static void **
-datatestrawbitnot()
+datatestbitnot()
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 1024;
@@ -171,12 +171,12 @@ datatestrawbitnot()
     data[i]->bytes1 = (uint8_t *)malloc(data[i]->capa);
     data[i]->expected = (uint8_t *)malloc(data[i]->capa);
 
-    rawbitstdrand(data[i]->bytes1, 0, data[i]->capa * 8);
+    bitstdrand(data[i]->bytes1, 0, data[i]->capa * 8);
     memcpy(data[i]->expected, data[i]->bytes1, data[i]->capa);
 
     for (j = 0; j < data[i]->size; j++) {
-      rawbitset(data[i]->expected, data[i]->expos + j,
-          !rawbitget(data[i]->bytes1, data[i]->pos1 + j));
+      bitset(data[i]->expected, data[i]->expos + j,
+          !bitget(data[i]->bytes1, data[i]->pos1 + j));
     }
   }
 
@@ -184,7 +184,7 @@ datatestrawbitnot()
 }
 
 static void
-freetestrawbitnot(void *data)
+freetestbitnot(void *data)
 {
   struct testdata *test;
 
@@ -194,7 +194,7 @@ freetestrawbitnot(void *data)
 }
 
 static void
-testrawbitnot(void *data)
+testbitnot(void *data)
 {
   struct testdata *test;
   uint8_t *buf;
@@ -204,21 +204,21 @@ testrawbitnot(void *data)
 
   /* different pointers */
   memcpy(buf, test->bytes1, test->capa);
-  rawbitnot(buf, test->expos, test->bytes1, test->pos1, test->size);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  bitnot(buf, test->expos, test->bytes1, test->pos1, test->size);
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "failed to write notd bits to a different pointer");
 
   /* same pointer */
   memcpy(buf, test->bytes1, test->capa);
-  rawbitnot(buf, test->expos, buf, test->pos1, test->size);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  bitnot(buf, test->expos, buf, test->pos1, test->size);
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "failed to write notd bits to the pointer");
 
   free(buf);
 }
 
 static void **
-datatestrawbitreverse()
+datatestbitreverse()
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 1024;
@@ -236,12 +236,12 @@ datatestrawbitreverse()
     data[i]->bytes1 = (uint8_t *)malloc(data[i]->capa);
     data[i]->expected = (uint8_t *)malloc(data[i]->capa);
 
-    rawbitstdrand(data[i]->bytes1, 0, data[i]->capa * 8);
+    bitstdrand(data[i]->bytes1, 0, data[i]->capa * 8);
     memcpy(data[i]->expected, data[i]->bytes1, data[i]->capa);
 
     for (j = 0; j < data[i]->size; j++) {
-      rawbitset(data[i]->expected, data[i]->expos + j,
-          rawbitget(data[i]->bytes1,
+      bitset(data[i]->expected, data[i]->expos + j,
+          bitget(data[i]->bytes1,
             data[i]->pos1 + (data[i]->size - j - 1)));
     }
   }
@@ -250,7 +250,7 @@ datatestrawbitreverse()
 }
 
 static void
-freetestrawbitreverse(void *data)
+freetestbitreverse(void *data)
 {
   struct testdata *test;
 
@@ -260,7 +260,7 @@ freetestrawbitreverse(void *data)
 }
 
 static void
-testrawbitreverse(void *data)
+testbitreverse(void *data)
 {
   struct testdata *test;
   uint8_t *buf;
@@ -270,26 +270,26 @@ testrawbitreverse(void *data)
 
   /* different pointers */
   memcpy(buf, test->bytes1, test->capa);
-  rawbitreverse(buf, test->expos, test->bytes1, test->pos1, test->size);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  bitreverse(buf, test->expos, test->bytes1, test->pos1, test->size);
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "failed to write reversed bits to a different pointer");
 
   /* same pointer */
   memcpy(buf, test->bytes1, test->capa);
-  rawbitreverse(buf, test->expos, buf, test->pos1, test->size);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  bitreverse(buf, test->expos, buf, test->pos1, test->size);
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "failed to write reversed bits to the pointer");
 
   free(buf);
 }
 
 void
-inittestrawbitop()
+inittestbitop()
 {
-  testadd("testrawbitand", datatestrawbitand, testrawbitand, freetestrawbitop);
-  testadd("testrawbitor", datatestrawbitor, testrawbitor, freetestrawbitop);
-  testadd("testrawbitxor", datatestrawbitxor, testrawbitxor, freetestrawbitop);
-  TESTADD(testrawbitnot);
-  TESTADD(testrawbitreverse);
+  testadd("testbitand", datatestbitand, testbitand, freetestbitop);
+  testadd("testbitor", datatestbitor, testbitor, freetestbitop);
+  testadd("testbitxor", datatestbitxor, testbitxor, freetestbitop);
+  TESTADD(testbitnot);
+  TESTADD(testbitreverse);
 }
 

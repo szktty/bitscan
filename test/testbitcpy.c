@@ -15,7 +15,7 @@ struct testdata {
 };
 
 static void **
-datatestrawbitcpy()
+datatestbitcpy()
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 1024;
@@ -32,12 +32,12 @@ datatestrawbitcpy()
     data[i]->destpos = genpos(data[i]->capa, data[i]->size);
     data[i]->src = (uint8_t *)malloc(data[i]->capa);
     data[i]->expected = (uint8_t *)malloc(data[i]->capa);
-    rawbitstdrand(data[i]->src, 0, data[i]->capa * 8);
+    bitstdrand(data[i]->src, 0, data[i]->capa * 8);
     memcpy(data[i]->expected, data[i]->src, data[i]->capa);
 
     for (j = 0; j < data[i]->size; j++) {
-      rawbitset(data[i]->expected, data[i]->destpos + j,
-          rawbitget(data[i]->src, data[i]->srcpos + j));
+      bitset(data[i]->expected, data[i]->destpos + j,
+          bitget(data[i]->src, data[i]->srcpos + j));
     }
   }
 
@@ -45,7 +45,7 @@ datatestrawbitcpy()
 }
 
 static void
-freetestrawbitcpy(void *data)
+freetestbitcpy(void *data)
 {
   struct testdata *test;
 
@@ -54,7 +54,7 @@ freetestrawbitcpy(void *data)
 }
 
 static void
-testrawbitcpy(void *data)
+testbitcpy(void *data)
 {
   struct testdata *test;
   uint8_t *buf;
@@ -63,13 +63,13 @@ testrawbitcpy(void *data)
   buf = (uint8_t *)malloc(test->capa);
 
   memcpy(buf, test->src, test->capa);
-  rawbitcpy(buf, test->destpos, test->src, test->srcpos, test->size);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  bitcpy(buf, test->destpos, test->src, test->srcpos, test->size);
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "fail different buffer");
 
   memcpy(buf, test->src, test->capa);
-  rawbitcpy(buf, test->destpos, buf, test->srcpos, test->size);
-  testassert(rawbiteq(buf, 0, test->expected, 0, test->capa * 8),
+  bitcpy(buf, test->destpos, buf, test->srcpos, test->size);
+  testassert(biteq(buf, 0, test->expected, 0, test->capa * 8),
       "fail same buffer");
 
   free(buf);
@@ -77,8 +77,8 @@ testrawbitcpy(void *data)
 }
 
 void
-inittestrawbitcpy()
+inittestbitcpy()
 {
-  TESTADD(testrawbitcpy);
+  TESTADD(testbitcpy);
 }
 

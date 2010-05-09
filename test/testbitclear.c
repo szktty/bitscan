@@ -12,7 +12,7 @@ struct testdata {
 };
 
 static void **
-datatestrawbitclear()
+datatestbitclear()
 {
   struct testdata **data;
   static size_t n = 10000, maxcapa = 512;
@@ -32,13 +32,13 @@ datatestrawbitclear()
 }
 
 static void
-freetestrawbitclear(void *data)
+freetestbitclear(void *data)
 {
   /* do nothing */
 }
 
 static void
-testrawbitclear(void *data)
+testbitclear(void *data)
 {
   struct testdata *test;
   uint8_t *buf;
@@ -47,24 +47,24 @@ testrawbitclear(void *data)
   test = data;
   buf = (uint8_t *)malloc(test->capa);
   memset(buf, 0xff, test->capa);
-  rawbitclear(buf, test->pos, test->size);
+  bitclear(buf, test->pos, test->size);
 
   for (i = 0; i < test->pos; i++) {
-    if (!rawbitget(buf, i)) {
+    if (!bitget(buf, i)) {
       testassert(false, "bits between 0 and pos are cleared");
       goto error;
     }
   }
 
   for (i = test->pos; i < test->pos + test->size; i++) {
-    if (rawbitget(buf, i)) {
+    if (bitget(buf, i)) {
       testassert(false, "bits are not cleared");
       goto error;
     }
   }
 
   for (i = test->pos + test->size; i < test->capa * 8; i++) {
-    if (!rawbitget(buf, i)) {
+    if (!bitget(buf, i)) {
       testassert(false, "rest bits are cleared");
       goto error;
     }
@@ -79,8 +79,8 @@ error:
 }
 
 void
-inittestrawbitclear()
+inittestbitclear()
 {
-  TESTADD(testrawbitclear);
+  TESTADD(testbitclear);
 }
 
