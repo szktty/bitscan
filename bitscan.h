@@ -80,6 +80,8 @@ extern void bitinsertf(void *dest, size_t pos,
 extern void bitvinsertf(void *dest, size_t pos,
     const char *format, va_list ap);
 
+extern char *bitcompilef(const char *format, size_t *size);
+
 extern size_t bitprintf(const char *format, ...);
 extern size_t bitvprintf(const char *format, va_list ap);
 extern size_t bitsprintf(void *bits, size_t pos, const char *format, ...);
@@ -87,7 +89,6 @@ extern size_t bitvsprintf(void *bits, size_t pos,
     const char *format, va_list ap);
 extern size_t bitfprintf(FILE *fp, const char *format, ...);
 extern size_t bitvfprintf(FILE *fp, const char *format, va_list ap);
-extern size_t bitformatsize(const char *format);
 
 extern size_t bitscanf(const char *format, ...);
 extern size_t bitvscanf(const char *format, va_list ap); 
