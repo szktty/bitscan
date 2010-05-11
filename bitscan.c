@@ -41,6 +41,97 @@ typedef enum BITOP {
       ((v)&1?1<<SHIFTS(idx):0);                             \
   } while (0)
 
+/*
+ * compiled format code
+ *
+ * struct format {
+ *   uint8_t magic_number = 0xff;
+ *   size_t nparams;
+ *   struct param params[nparams]; 
+ * };
+ *
+ * struct param {
+ *   uint8_t value_type;
+ *   union {
+ *     struct {
+ *       size_t size;
+ *       uint8_t value[size];
+ *     } intval;
+ *     double floatval;
+ *     struct {
+ *       size_t size;
+ *       char strval[size];
+ *     } strval;
+ *   } value;
+ *   uint8_t type_specifier;
+ *   uint8_t byte_order;
+ *   struct {
+ *     struct {
+ *       uint8_t type = POS_VALUE;
+ *       size_t pos;
+ *     } value;
+ *     uint8_t var_type = POS_VAR;
+ *     uint8_t ptr_type = POS_PTR;
+ *     uint8_t cur_type = POS_CUR;
+ *   } pos;
+ *   struct {
+ *     struct {
+ *       uint8_t type = NBITS_VALUE;
+ *       size_t pos;
+ *     } value;
+ *     uint8_t var_type = NBITS_VAR;
+ *     uint8_t ptr_type = NBITS_PTR;
+ *   } bits;
+ * };
+ *
+ */
+
+typedef enum VALUE_TYPE {
+  VALUE_NULL,
+  VALUE_INT,
+  VALUE_FLOAT,
+  VALUE_STR
+} VALUE_TYPE;
+
+typedef enum TYPE_SPCR {
+  TYPE_CHAR,            /* c */
+  TYPE_UCHAR,           /* C */
+  TYPE_SHORT,           /* s */
+  TYPE_USHORT,          /* S */
+  TYPE_INT,             /* i */
+  TYPE_UINT,            /* I */
+  TYPE_LONG,            /* l */
+  TYPE_ULONG,           /* L */
+  TYPE_LLONG,           /* q */
+  TYPE_ULLONG,          /* Q */
+  TYPE_FLOAT,           /* f */
+  TYPE_DOUBLE,          /* d */
+  TYPE_PTR,             /* ^ */
+  TYPE_STR_NULL,        /* a */
+  TYPE_STR_NONNULL,     /* A */
+  TYPE_IGNORE,          /* # */
+} TYPE_SPCR;
+
+typedef enum ENDIAN {
+  ENDIAN_NATIVE,
+  ENDIAN_LITTLE,
+  ENDIAN_BIG,
+  ENDIAN_NETWORK,
+} ENDIAN;
+
+typedef enum POS_TYPE {
+  POS_VALUE,
+  POS_VAR,              /* ? */
+  POS_PTR,              /* ^ */
+  POS_CUR,              /* + */
+} POS_TYPE;
+
+typedef enum NBITS_TYPE {
+  NBITS_VALUE,
+  NBITS_VAR,            /* ? */
+  NBITS_PTR,            /* ^ */
+} NBITS_TYPE;
+
 static void bitshift(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size, size_t shift, bool left);
 static void bitop(BITOP op, void *dest, size_t destpos,
