@@ -54,8 +54,11 @@ extern void bitlshift(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size, size_t shift);
 extern void bitrshift(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size, size_t shift);
-extern void bitlrotate(void *bits, size_t pos, size_t size, size_t rotate);
-extern void bitrrotate(void *bits, size_t pos, size_t size, size_t rotate);
+extern void bitlrotate(void *dest, size_t destpos,
+    const void *src, size_t srcpos, size_t size, size_t shift);
+extern void bitrrotate(void *dest, size_t destpos,
+    const void *src, size_t srcpos, size_t size, size_t shift);
+
 extern void bitand(void *dest, size_t destpos,
    const void *bits1, size_t pos1,
    const void *bits2, size_t pos2, size_t size);

@@ -235,6 +235,74 @@ bitrshift(void *dest, size_t destpos, const void *src, size_t srcpos,
 }
 
 static void
+bitrotate(void *dest, size_t destpos, const void *src, size_t srcpos,
+    size_t size, size_t shift, bool left)
+{
+  size_t i;
+  void *temp;
+
+  if (shift == 0) {
+    bitcpy(dest, destpos, src, srcpos, size);
+    return;
+  }
+
+  if ((size_t)src + srcpos + size < (size_t)dest ||
+      (size_t)dest + destpos + size < (size_t)src) {
+
+    if (left) {
+      for (i = 0; i < size - shift; i++) {
+        SET(dest, destpos + i, GET(src, srcpos + i + shift));
+      }
+      for (; i < size; i++) {
+        SET(dest, destpos + i, GET(src, srcpos + i - (size - shift)));
+      }
+    } else {
+      for (i = 0; i < shift; i++) {
+        SET(dest, destpos + i, GET(src, srcpos + size - shift + i));
+      }
+      for (i = shift; i < size; i++) {
+        SET(dest, destpos + i, GET(src, srcpos + i - shift));
+      }
+    }
+  } else {
+    temp = malloc(shift / 8 + 1);
+    bitcpy(temp, 0, src, srcpos, size);
+
+    if (left) {
+      for (i = 0; i < size - shift; i++) {
+        SET(dest, destpos + i, GET(temp, i + shift));
+      }
+      for (; i < size; i++) {
+        SET(dest, destpos + i, GET(temp, i - (size - shift)));
+      }
+    } else {
+      for (i = 0; i < shift; i++) {
+        SET(dest, destpos + i, GET(temp, size - shift + i));
+      }
+      for (; i < size; i++) {
+        SET(dest, destpos + i, GET(temp, i - shift));
+      }
+    }
+    free(temp);
+  }
+}
+
+void
+bitlrotate(void *dest, size_t destpos, const void *src, size_t srcpos,
+    size_t size, size_t shift)
+{
+  bitrotate(dest, destpos, src, srcpos, size, shift, true);
+}
+
+void
+bitrrotate(void *dest, size_t destpos, const void *src, size_t srcpos,
+    size_t size, size_t shift)
+{
+  bitrotate(dest, destpos, src, srcpos, size, shift, false);
+}
+
+
+static void
 bitop(BITOP op, void *dest, size_t destpos,
     const void *bits1, size_t pos1,
     const void *bits2, size_t pos2, size_t size)
