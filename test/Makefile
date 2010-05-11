@@ -3,7 +3,7 @@ CFLAGS = -Wall -std=c99 -O2
 OBJS = bitscan.o main.o test.o testgen.o \
 	   testbitclear.o testbitcmp.o testbitcpy.o \
 	   testbitget.o \
-	   testbitop.o testbitrand.o \
+	   testbitop.o testbitrand.o testbitrotate.o \
 	   testbitset.o testbitshift.o
 MAIN = main
 

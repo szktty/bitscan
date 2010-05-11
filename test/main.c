@@ -10,6 +10,7 @@ extern void inittestbitrand();
 extern void inittestbitclear();
 extern void inittestbitcpy();
 extern void inittestbitop();
+extern void inittestbitrotate();
 extern void inittestbitshift();
 
 int
@@ -22,6 +23,7 @@ main(int argc, char **argv)
   inittestbitget();
   inittestbitop();
   inittestbitrand();
+  inittestbitrotate();
   inittestbitset();
   inittestbitshift();
   testrun();
