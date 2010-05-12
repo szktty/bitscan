@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 
+#include <ctype.h>
 #include "bitscan.h"
 
 typedef enum BITOP {
@@ -46,6 +47,7 @@ typedef enum BITOP {
  *
  * struct format {
  *   uint8_t magic_number = 0xff;
+ *   size_t write_size;
  *   size_t nparams;
  *   struct param params[nparams]; 
  * };
@@ -131,6 +133,8 @@ typedef enum NBITS_TYPE {
   NBITS_VAR,            /* ? */
   NBITS_PTR,            /* ^ */
 } NBITS_TYPE;
+
+#define MAGIC 0xff
 
 static void bitshift(void *dest, size_t destpos,
     const void *src, size_t srcpos, size_t size, size_t shift, bool left);
@@ -513,5 +517,70 @@ bitreverse(void *dest, size_t destpos,
     }
     free(temp);
   }
+}
+
+char *
+bitcompilef(const char *format, size_t *size)
+{
+  const char *s, *s1;
+  uint8_t *code, *wcode;
+  bool lit = false;
+  size_t codesize, writesize = 0, bitsize;
+
+  /*
+   * check code size 
+   */
+
+  /* magic + write_size + nparams */
+  codesize = 1 + sizeof(size_t) * 2;
+  while (*s != '\0') {
+    /* parse literal */
+    while (*s != '\0') {
+      switch (*s) {
+      case '0': case '1': case '2': case '3': case '4':
+      case '5': case '6': case '7': case '8': case '9':
+        s1 = s;
+        while (isdigit(*s1))
+          s1++;
+        if (*s1 == '#')
+          goto parse_nbase1;
+        else if (*s1 == '.')
+          goto parse_float1;
+        else
+          goto parse_int1;
+
+      case '%':
+        goto parse_type_spcr1;
+
+      default:
+        /* ignore */
+        break;
+      }
+      s++;
+    }
+    goto build_phase;
+
+parse_nbase1:
+parse_float1:
+parse_int1:
+    while (isdigit(*s)) {
+      codesize++;
+      s++;
+    }
+    goto parse_type_spcr1;
+  }
+
+parse_type_spcr1:
+
+build_phase:
+  code = wcode = (uint8_t *)malloc(codesize);
+  *wcode++ = MAGIC;
+
+  /* write size */
+  *((size_t *)(code + 1)) = writesize;
+
+  if (size != NULL)
+    *size = writesize;
+  return (char *)code;
 }
 
