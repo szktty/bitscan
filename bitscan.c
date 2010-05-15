@@ -47,7 +47,6 @@ typedef enum BITOP {
  *
  * struct format {
  *   uint8_t magic_number = 0xff;
- *   size_t write_size;
  *   size_t nparams;
  *   struct param params[nparams]; 
  * };
@@ -527,369 +526,317 @@ bitreverse(void *dest, size_t destpos,
 char *
 bitcompilef(const char *format)
 {
-  const char *s, *s1, *s2;
+  const char *s;
   uint8_t *code = NULL, *wcode;
-  bool neg;
+  bool build = false, neg;
   size_t codesize, nparams = 0, posval = 0, nbitsval = 0;
   uint8_t valtype, spcr = 0, ordertype = 0, postype = 0, nbitstype = 0, v;
   unsigned long base, intval;
   long uintval;
 
-  /*
-   * check code size 
-   */
-
   /* magic + write_size + nparams */
-  s = format;
   codesize = 1 + sizeof(size_t) * 2;
+
+parse:
+  s = format;
   while (*s != '\0') {
-    s1 = s;
-    while (*s1 != '\0') {
-      /* parse literal */
+    switch (*s) {
+    case ' ':
+      s++;
+      continue;
+
+    case '%':
+      break;
+
+    case '\'':
+      /* TODO: character */
+
+    case '"': case '|':
+      /* TODO: string */
+
+    case '.': case '-':
+    case '0': case '1': case '2': case '3': case '4':
+    case '5': case '6': case '7': case '8': case '9':
+      /* int, float literals */
       codesize += 1; /* value_type */
       valtype = VALUE_NULL;
       neg = false;
-      while (*s1 != '\0') {
-        switch (*s1) {
-        case '.': case '-':
-        case '0': case '1': case '2': case '3': case '4':
-        case '5': case '6': case '7': case '8': case '9':
-          s2 = s1;
-          if (*s1 == '-') {
-            neg = true;
-            s2++;
-          }
-          while (isdigit(*s2))
-            s2++;
 
-          if (*s2 == '#') {
-            valtype = VALUE_NBASE;
-            codesize += sizeof(size_t);
-            while (isdigit(*s1))
-              s1++;
-            s1++; /* # */
-            while (isdigit(*s1) || isalpha(*s1))
-              s1++;
-          } else if (*s2 == '.') {
-            valtype = VALUE_FLOAT;
-            codesize += sizeof(double);
-            while (isdigit(*s1) || *s1 == 'e' || *s1 == 'E' ||
-                *s1 == 'f' || *s1 == 'F' || *s1 == 'l' || *s1 == 'L' ||
-                *s1 == '-' || *s1 == '+')
-              s1++;
-          } else {
-            codesize += sizeof(long);
-            if (neg)
-              valtype = VALUE_INT;
-            else
-              valtype = VALUE_UINT;
-            while (isdigit(*s1))
-              s1++;
-          }
-          break;
-
-        case '%':
-          goto parse_spcr1;
-
-        default:
-          /* ignore */
-          break;
-        }
-        s1++;
+      if (*s == '-') {
+        neg = true;
+        s++;
       }
-      goto build_phase;
 
-parse_spcr1:
+      /* for xx#xxxx */
+      base = 0;
+      while (isdigit(*s)) {
+        base = (base * 10) + (*s - '0');
+        s++;
+      }
+
+      if (*s == '#') {
+        valtype = VALUE_NBASE;
+        codesize += sizeof(size_t);
+        s++; /* # */
+
+        if (neg)
+          intval = -1;
+        else
+          uintval = 0;
+        while (isdigit(*s) || isalpha(*s)) {
+          if (isdigit(*s))
+            v = *s - '0';
+          else if (isupper(*s))
+            v = *s - 'A';
+          else
+            v = *s - 'a';
+
+          if (neg)
+            intval = (intval * base) + v;
+          else
+            uintval = (uintval * base) + v;
+          s++;
+        }
+      } else if (*s == '.') {
+        valtype = VALUE_FLOAT;
+        codesize += sizeof(double);
+        /* TODO */
+
+      } else {
+        codesize += sizeof(long);
+        if (neg) {
+          valtype = VALUE_INT;
+          if (neg) {
+            intval = -1;
+            s++;
+          } else
+            intval = 0;
+
+          while (isdigit(*s)) {
+            intval = (intval * 10) + (*s - '0');
+            s++;
+          }
+        } else {
+          valtype = VALUE_UINT;
+          uintval = 0;
+          while (isdigit(*s)) {
+            uintval = (uintval * 10) + (*s - '0');
+            s++;
+          }
+        }
+      }
+      break;
+
+    default:
+      goto error;
+    }
+
+    /* parse type specifier */
+    if (*s != '%') {
+      goto error;
+    } else {
+      s++; /* '%' */
       nparams++;
       codesize += 4; /* type_specifier, byte_order, pos, nbits */
 
-      while (*s1 != '\0') {
-        switch (*s1) {
-        case '%':
-          s1++;
-
-          switch (*s1) {
-          case 'c':
-            spcr = TYPE_CHAR;
-            break;
-          case 'C':
-            spcr = TYPE_UCHAR;
-            break;
-          case 's':
-            spcr = TYPE_SHORT;
-            break;
-          case 'S':
-            spcr = TYPE_USHORT;
-            break;
-          case 'i':
-            spcr = TYPE_INT;
-            break;
-          case 'I':
-            spcr = TYPE_UINT;
-            break;
-          case 'l':
-            spcr = TYPE_LONG;
-            break;
-          case 'L':
-            spcr = TYPE_ULONG;
-            break;
-          case 'q':
-            spcr = TYPE_LLONG;
-            break;
-          case 'Q':
-            spcr = TYPE_ULLONG;
-            break;
-          case 'f':
-            spcr = TYPE_FLOAT;
-            break;
-          case 'd':
-            spcr = TYPE_DOUBLE;
-            break;
-          case '^':
-            spcr = TYPE_PTR;
-            s1++;
-            break;
-          case 'a':
-            spcr = TYPE_STR_NULL;
-            break;
-          case 'A':
-            spcr = TYPE_STR_NONNULL;
-            break;
-          case '#':
-            spcr = TYPE_IGNORE;
-            break;
-          default:
-            /* error */
-            return NULL;
-          }
-          s1++;
-
-          /* byte order */
-          switch (*s1) {
-          case '=':
-            ordertype = ENDIAN_NATIVE;
-            s1++;
-            break;
-          case '>': case '!':
-            ordertype = ENDIAN_BIG;
-            s1++;
-            break;
-          case '<':
-            ordertype = ENDIAN_LITTLE;
-            s1++;
-            break;
-          default:
-            ordertype = ENDIAN_NATIVE;
-            break;
-          }
-
-          /* pos */
-          postype = POS_NULL;
-          if (*s1 == '@') {
-            s1++;
-            switch (*s1) {
-            case '?':
-              postype = POS_VAR;
-              s1++;
-              break;
-            case '^':
-              postype = POS_PTR;
-              s1++;
-              break;
-            case '+':
-              postype = POS_CUR;
-              s1++;
-              break;
-            case '0': case '1': case '2': case '3': case '4':
-            case '5': case '6': case '7': case '8': case '9':
-              postype = POS_VALUE;
-              posval = *s1 - '0';
-              s1++;
-              while (isdigit(*s1)) {
-                posval = (posval * 10) + (*s1 - '0');
-                s1++;
-              }
-              codesize += sizeof(size_t);
-              break;
-            default:
-              /* error */
-              return NULL;
-            }
-          }
-
-          /* bits */
-          nbitstype = NBITS_NULL;
-          if (*s1 == ':') {
-            s1++;
-            switch (*s1) {
-            case '?':
-              nbitstype = NBITS_VAR;
-              break;
-            case '^':
-              nbitstype = NBITS_PTR;
-              break;
-            case '0': case '1': case '2': case '3': case '4':
-            case '5': case '6': case '7': case '8': case '9':
-              nbitstype = NBITS_VALUE;
-              nbitsval = *s1 - '0';
-              s1++;
-              while (isdigit(*s1)) {
-                nbitsval = (posval * 10) + (*s1 - '0');
-                s1++;
-              }
-              codesize += sizeof(size_t);
-              break;
-            default:
-              /* error */
-              return NULL;
-            }
-          }
-
-          goto build_phase;
-        }
-        s1++;
+      switch (*s) {
+      case 'c':
+        spcr = TYPE_CHAR;
+        break;
+      case 'C':
+        spcr = TYPE_UCHAR;
+        break;
+      case 's':
+        spcr = TYPE_SHORT;
+        break;
+      case 'S':
+        spcr = TYPE_USHORT;
+        break;
+      case 'i':
+        spcr = TYPE_INT;
+        break;
+      case 'I':
+        spcr = TYPE_UINT;
+        break;
+      case 'l':
+        spcr = TYPE_LONG;
+        break;
+      case 'L':
+        spcr = TYPE_ULONG;
+        break;
+      case 'q':
+        spcr = TYPE_LLONG;
+        break;
+      case 'Q':
+        spcr = TYPE_ULLONG;
+        break;
+      case 'f':
+        spcr = TYPE_FLOAT;
+        break;
+      case 'd':
+        spcr = TYPE_DOUBLE;
+        break;
+      case '^':
+        spcr = TYPE_PTR;
+        break;
+      case 'a':
+        spcr = TYPE_STR_NULL;
+        break;
+      case 'A':
+        spcr = TYPE_STR_NONNULL;
+        break;
+      case '#':
+        spcr = TYPE_IGNORE;
+        break;
+      default:
+        goto error;
       }
-      /* error */
-      return NULL;
-    }
+      s++; /* type specifier */
 
-build_phase:
-    code = wcode = (uint8_t *)malloc(codesize);
-    *wcode++ = MAGIC;
-
-    s1 = s;
-    while (*s1 != '\0') {
-      /* parse literal */
-      while (*s1 != '\0') {
-        if (isdigit(*s1) || *s1 == '.' || *s1 == '-') {
-          *wcode++ = valtype;
-          switch (valtype) {
-          case VALUE_NBASE:
-            base = 0;
-            while (isdigit(*s1)) {
-              base = (base * 10) + (*s1 - '0');
-              s1++;
-            }
-            s1++; /* # */
-
-            if (neg)
-              intval = -1;
-            else
-              uintval = 0;
-            while (isdigit(*s1) || isalpha(*s1)) {
-              if (isdigit(*s1))
-                v = *s1 - '0';
-              else if (isupper(*s1))
-                v = *s1 - 'A';
-              else
-                v = *s1 - 'a';
-
-              if (neg)
-                intval = (intval * base) + v;
-              else
-                uintval = (uintval * base) + v;
-              s1++;
-            }
-
-            if (neg) {
-              memcpy(wcode, &intval, sizeof(long));
-              wcode += sizeof(long);
-            } else {
-              memcpy(wcode, &uintval, sizeof(unsigned long));
-              wcode += sizeof(unsigned long);
-            }
-            goto parse_spcr2;
-
-          case VALUE_FLOAT:
-            /* TODO */
-
-          case VALUE_INT:
-            if (neg) {
-              intval = -1;
-              s1++;
-            } else
-              intval = 0;
-
-            while (isdigit(*s1)) {
-              intval = (intval * 10) + (*s1 - '0');
-              s1++;
-            }
-            goto parse_spcr2;
-
-          case VALUE_UINT:
-            uintval = 0;
-            while (isdigit(*s1)) {
-              uintval = (uintval * 10) + (*s1 - '0');
-              s1++;
-            }
-            goto parse_spcr2;
-
-          case '%':
-            goto parse_spcr2;
-
-          default:
-            /* ignore */
-            break;
-          }
-          s1++;
-        }
-        goto build_phase;
+      /* byte order */
+      switch (*s) {
+      case '=':
+        ordertype = ENDIAN_NATIVE;
+        s++;
+        break;
+      case '>': case '!':
+        ordertype = ENDIAN_BIG;
+        s++;
+        break;
+      case '<':
+        ordertype = ENDIAN_LITTLE;
+        s++;
+        break;
+      default:
+        ordertype = ENDIAN_NATIVE;
+        break;
       }
-    }
-    goto error;
 
-parse_spcr2:
-
-    while (*s1 != '\0') {
-      switch (*s1) {
-      case '%':
-        s1 += 2;
-        *wcode++ = spcr;
-
-        /* byte order */
-        *wcode++ = ordertype;
-        switch (*s1) {
-        case '=': case '>': case '!': case '<':
-          s1++;
+      /* pos */
+      postype = POS_NULL;
+      if (*s == '@') {
+        s++;
+        switch (*s) {
+        case '?':
+          postype = POS_VAR;
+          s++;
           break;
-        }
-
-        /* pos */
-        *wcode++ = postype;
-        if (*s1 == '@') {
-          s1++; /* '@' */
-          if (postype == POS_VALUE) {
-            *((size_t *)wcode) = posval;
-            wcode += sizeof(size_t);
-            while (isdigit(*s1))
-              s1++;
-          } else
-            s1++;
-        }
-
-        /* bits */
-        *wcode++ = nbitstype;
-        if (*s1 == ':') {
-          s1++; /* ':' */
-          if (nbitstype == NBITS_VALUE) {
-            *((size_t *)wcode) = nbitsval;
-            wcode += sizeof(size_t);
-            while (isdigit(*s1))
-              s1++;
-          } else
-            s1++;
+        case '^':
+          postype = POS_PTR;
+          s++;
+          break;
+        case '+':
+          postype = POS_CUR;
+          s++;
+          break;
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+          postype = POS_VALUE;
+          posval = *s - '0';
+          s++;
+          while (isdigit(*s)) {
+            posval = (posval * 10) + (*s - '0');
+            s++;
+          }
+          codesize += sizeof(size_t);
+          break;
+        default:
+          /* error */
+          return NULL;
         }
       }
-      s1++;
+
+      /* bits */
+      nbitstype = NBITS_NULL;
+      if (*s == ':') {
+        s++;
+        switch (*s) {
+        case '?':
+          nbitstype = NBITS_VAR;
+          break;
+        case '^':
+          nbitstype = NBITS_PTR;
+          break;
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+          nbitstype = NBITS_VALUE;
+          nbitsval = *s - '0';
+          s++;
+          while (isdigit(*s)) {
+            nbitsval = (posval * 10) + (*s - '0');
+            s++;
+          }
+          codesize += sizeof(size_t);
+          break;
+        default:
+          /* error */
+          return NULL;
+        }
+      }
     }
 
-    s = s1;
+    if (build) {
+      *wcode++ = valtype;
+      switch (valtype) {
+      case VALUE_NBASE:
+        if (neg) {
+          memcpy(wcode, &intval, sizeof(long));
+          wcode += sizeof(long);
+        } else {
+          memcpy(wcode, &uintval, sizeof(unsigned long));
+          wcode += sizeof(unsigned long);
+        }
+        break;
+
+      case VALUE_FLOAT:
+        /* TODO */
+        break;
+
+      case VALUE_INT:
+        /* TODO */
+        break;
+
+      case VALUE_UINT:
+        /* TODO */
+        break;
+      }
+
+      /* type specifier */
+      s += 2;
+      *wcode++ = spcr;
+
+      /* byte order */
+      *wcode++ = ordertype;
+
+      /* pos */
+      *wcode++ = postype;
+      if (postype == POS_VALUE) {
+        *((size_t *)wcode) = posval;
+        wcode += sizeof(size_t);
+      }
+
+      /* bits */
+      *wcode++ = nbitstype;
+      if (nbitstype == NBITS_VALUE) {
+        *((size_t *)wcode) = nbitsval;
+        wcode += sizeof(size_t);
+      }
+    }
   }
 
+  if (!build) {
+    build = true;
+    code = wcode = (uint8_t *)malloc(codesize);
+    *wcode++ = MAGIC;
+    wcode += sizeof(size_t); /* nparams */
+    goto parse;
+  }
+  *((size_t *)code+1) = nparams;
   return (char *)code;
 
 error:
-  free(code);
+  if (build)
+    free(code);
   return NULL;
 }
 
